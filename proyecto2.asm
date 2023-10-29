@@ -9,8 +9,7 @@ L_CARROVERDE	equ 07
 L_CARROAMARILLO	equ 08
 CAMIONINI		equ 09
 CAMIONFIN		equ 10
-;;-----------------------------------------FIN JUEGO-----------------------------------------
-;;-------------------------------------------USUARIOS-------------------------------------------
+
 USUARIO_NORMAL			equ 02
 USUARIO_ADMIN 			equ 01
 USUARIO_ADMIN_ORIGINAL	equ 00
