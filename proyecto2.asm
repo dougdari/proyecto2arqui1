@@ -277,7 +277,6 @@ handle_ordenamiento dw 0000h
 offset_escribir_file dw 0000h
 coma db ","
 salto_linea db 0dh, 0ah
-datos_desarrollador db "DESARROLLADO POR: Sergio Saul Ralda Mejia      ", 0ah, "CARNET: 202103216", 0ah, 0ah
 cadena_ordenamiento_parametro_puntaje db "SE ORDENO POR PUNTAJE", 0ah
 cadena_ordenamiento_parametro_tiempo db "SE ORDENO POR TIEMPO ", 0ah
 cadena_ordenamiento_orientacion_ascendente db "SE ORDENO DE FORMA ASCENDENTE ", 0ah
@@ -2553,13 +2552,7 @@ FINAL_ORDENAMIENTO:
 	int 21h
 	;
 	mov handle_ordenamiento, AX
-	;Escribir datos_desarrolador en el archivo de ordenamiento
-	mov AH, 40h
-	mov BX, handle_ordenamiento
-	mov CX, 0043h
-	mov DX, offset datos_desarrollador
-	int 21h
-	;Escribir por el parametro que se ordeno
+
 	cmp parametro_puntaje, '1'
 	je ESCRIBIR_POR_PUNTAJE
 	cmp parametro_puntaje, '2'
