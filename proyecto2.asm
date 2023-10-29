@@ -35,11 +35,6 @@ contminuto dw 0000h
 contsegundo dw 0000h
 cadena_punteo db 05 dup('0'), '$' ;;00000 -> 00002
 punteo_actual dw 0000h
-;;-----------------------------------------FIN HEADER TABLERO-----------------------------------------
-
-;;---------------------------------------- FOOTER TABLERO-----------------------------------------
-
-
 
 dia_cadena db 02 dup (30),'/' 
 mes_cadena db 02 dup (30),'/'
@@ -56,9 +51,6 @@ hora_numero dw 0000
 minutos_numero dw 0000
 segundos_numero dw 0000
 
-;;----------------------------------------FIN FOOTER TABLERO-----------------------------------------
-
-;;-----------------------------------------TABLERO-----------------------------------------
 offset_DS_data DW 0000h
 count_col_sprite DW 0008h
 count_fila_sprite DW 0008h
@@ -183,7 +175,7 @@ tiempo_base_velocidad_rapida_aux db 00h
 tiempo_actual db 00h
 bandera_tiempo	db 00h
 
-;;---------------------------------------Presentacion---------------------------------------
+
 presentacion db 0ah,0ah,0ah,0ah," Universidad de San Carlos de Guatemala",0ah,0ah
 			 db " Facultad de Ingenieria",0ah,0ah
 			 db " Arquitectura de Computadoras y",0ah,0ah
@@ -193,9 +185,7 @@ presentacion db 0ah,0ah,0ah,0ah," Universidad de San Carlos de Guatemala",0ah,0a
 			 db " Nombre : Douglas Dario Rivera Ojeda",0ah,0ah
 			 db " Carnet : 201122881","$"
 
-;;---------------------------------------FIN TABLERO---------------------------------------
 
-;;----------------------------------------USUARIOS----------------------------------------
 usuarios_archivo db "USRS.ACE", 00
 cadena_login_titulo db "            LOGIN$"
 cadena_registro_titulo db "REGISTRO$"
@@ -237,9 +227,6 @@ count_minusculas_password db 00h
 count_mayusculas_password db 00h
 count_caracter_especial_password db 00h
 
-;;----------------------------------------FIN USUARIOS----------------------------------------
-;;----------------------------------------PUNTAJES----------------------------------------
-
 nombre_archivo_puntajes db "PUNTOS.ACE", 00
 
 usuario_puntaje db 14 dup(00)
@@ -259,11 +246,8 @@ cadena_segundo_puntaje db "00$"
 
 handle_puntajes dw 0000h
 
-cadena_titulo_ultimos_puntajes db "============ULTIMOS PUNTAJES============", 0ah, 0ah,"$"
+cadena_titulo_ultimos_puntajes db "          ULTIMOS PUNTAJES", 0ah, 0ah,"$"
 
-;;----------------------------------------FIN PUNTAJES----------------------------------------
-
-;;----------------------------------------ORDENAMIENTO----------------------------------------
  
 cadena_titulo_ordenamiento db "               ORDENAMIENTO", 0ah, 0ah,"$"
 cantidad_puntajes_leidos db 00h
@@ -317,10 +301,7 @@ tiempo_actual_ordenamiento db 00h
 tiempo_de_ordenamiento db "Tiempo que duro el ordenamiento: "
 cadena_tiempo_ordenamiento db "00"
 						   db " Segundos",0ah,0ah
-;;----------------------------------------FIN ORDENAMIENTO----------------------------------------
 
-
-;;----------------------------------------REPORTE HTML----------------------------------------
 
 cadena_reporte_realizado db "REPORTE CREADO$"
 
@@ -411,12 +392,6 @@ offset_archivo dw 0000h
 max_tabla_puntajes db 0fh
 bandera_solo_ordenamiento db 00h
 
-;;----------------------------------------FIN REPORTE HTML----------------------------------------
-
-
-
-;;----------------------------------------BLOQUEO USUARIO----------------------------------------
-
 bandera_coincide_usuario db 00h
 count_intentos db 00h
 usuario_anterior db 14 dup(00)
@@ -432,9 +407,6 @@ cadena_ingrese_usuario db "INGRESE USUARIO: $"
 offset_desbloque_usuario dw 0000h
 cadena_usuario_desbloqueado db "USUARIO DESBLOQUEADO$"
 cadena_error_no_existe_usuario db "ERROR: USUARIO NO EXISTE$"
-;;----------------------------------------FIN BLOQUEO USUARIO----------------------------------------
-
-;;----------------------------------------PROMOVER USUARIO----------------------------------------
 
 cadena_titulo_promover_usuario db "          PROMOVER O DEGRADAR          $"
 menu_promover_degradar_usuario db "	1. PROMOVER USUARIO",0ah,0ah,"	2. DEGRADAR USUARIO",0ah,0ah,"	","$"
@@ -445,44 +417,31 @@ offset_promover_degradar_usuario dw 0000h
 rol_promover_degradar db 00h
 opcion_promover_degradar db 00h
 cadena_usuario_promovido_degradado db "USUARIO PROMOVIDO/DEGRADADO CON EXITO$"
-;;----------------------------------------FIN PROMOVER USUARIO----------------------------------------
 
-
-;;----------------------------------------ESTADISTICAS----------------------------------------
 
 cadena_titulo_estadisticas db "           ESTADISTICAS          $"
 
-
-;;----------------------------------------FIN ESTADISTICAS----------------------------------------
-
-
-;;---------------------------------------INICIO MENU ADMIN ORIGINAL----------------------------
 cadena_usuario_base				db "              MENU",0ah,0ah
 								db "	 F1	 NUEVA PARTIDA",0ah,0ah
 								db "	 F2	 ULTIMAS PARTIDAS",0ah,0ah
 								db "	 F3	 CERRAR SESION",0ah,0ah,"$"
-cadena_usuario_admin			db "	 F4  ESTADISTICAS",0ah,0ah
-								db "	 F5  ORDENAMIENTO",0ah,0ah
+cadena_usuario_admin			db "	 F4      ESTADISTICAS",0ah,0ah
+								db "	 F5      ORDENAMIENTO",0ah,0ah
 								db "	 F6	 DESBLOQUEAR USUARIO",0ah,0ah
 								db "	 F7	 REPORTE DEL SISTEMA",0ah,0ah,"$"
 cadena_usuario_admin_original	db "	 F8	 PROMOVER O DEGRADAR$",0ah,0ah,"$"
 
-cadena_pantalla_inicial			db "	 F1	 LOGIN",0ah,0ah;db "===========PANTALLA INICIAL=============",0ah,0ah
-								;db 0ah,0ah,"	F1	LOGIN",0ah,0ah
+cadena_pantalla_inicial			db "	 F1	 LOGIN",0ah,0ah
 								db "	 F2	 REGISTRO",0ah,0ah
 								db "	 ESC     SALIR$"
 
-;;MENU PAUSE OPT 1 -> CONTINUAR, OPT 2 -> SALIR
-cadena_menu_pause				db "                PAUSE               ",0ah,0ah
-								db "	F1	CONTINUAR",0ah,0ah
+
+cadena_menu_pause				db "	F1	CONTINUAR",0ah,0ah
 								db "	F2	SALIR",0ah,0ah,"$"
-;;--------------------------------------- MENU PRINCIPAL---------------------------------------
 
 .CODE
 .STARTUP 
-;;===========================================INICIO_INSTRUCCIONES===========================================
 
-;;-----------------------------------------MODO DE VIDEO-----------------------------------------
     ;Cambiar a modo video 13h
     mov AL, 13h
     mov AH, 00h 
@@ -493,9 +452,9 @@ cadena_menu_pause				db "                PAUSE               ",0ah,0ah
 	mov DH, 00h
 	mov DL, 00h
 	int 10h
-	mov DX, offset presentacion
-	mov AH, 09h
-	int 21h
+	;mov DX, offset presentacion
+	;mov AH, 09h
+	;int 21h
 	;;Retardo de 2 segundos
 	MOV SI, 2710h
 et2:	
@@ -508,7 +467,7 @@ et1:
 	JMP et2
 et3:
 	jmp PANTALLA_INICIAL
-;;---------------------------------------FIN MODO DE VIDEO---------------------------------------
+
 
 ;;ecribir en archivo
 	mov CX, 0000
@@ -527,7 +486,6 @@ et3:
 	mov AH, 3eh
 	int 21h
 
-;;------------------------------------------INICIO LOGIN ----------------------------------------------
 ERROR_APERTURA_REGISTRO:
 	mov AH, 02h
 	mov BH, 00h
@@ -662,7 +620,6 @@ FINAL_ERROR_LOGIN:
 	int 21h
 	jmp PANTALLA_INICIAL
 
-;;--------------------------------------PANTALLA INICIAL--------------------------------------------------
 
 PANTALLA_INICIAL:
 	call limpiar_pantalla
@@ -795,7 +752,6 @@ ERROR_USUARIO_EXISTE:
 
 	jmp REGISTRO
 
-;;--------------------------------------REGISTRO--------------------------------------------------
 REGISTRO:
 
 	;Limpiar counts password
@@ -933,9 +889,6 @@ USUARIO_NO_EXISTE:
 	mov BX, handle_usuarios
 	mov AH, 3eh
 	int 21h
-
-
-;;------------------------------------PASSWORD------------------------------------
 
 	;;colocar cursor en la posicion fila, col -> 0ah, 06h
 	mov AH, 02h
@@ -1081,8 +1034,6 @@ FINAL_LOOP_VALIDAR_PASSWORD:
 
 	jmp PANTALLA_INICIAL
 
-;; --------------------------------------- LOGIN ----------------------------------------------
-
 LOGIN:
 	call limpiar_pantalla
 
@@ -1106,7 +1057,7 @@ LOGIN:
 	mov AH, 09h
 	int 21h
 
-;;------------------------------------USUARIO------------------------------------
+
 
 	;;colocar cursor en la posicion fila, col -> 08h, 06h
 	mov AH, 02h
@@ -1262,9 +1213,6 @@ USUARIO_NO_BLOQUEADO:
 	int 21h
 
 	jmp MENU
-;;------------------------------------------FIN LOGIN ----------------------------------------------
-
-;;------------------------------------------INICIO MENU ADMIN ORIGINAL ----------------------------------------------
 
 MENU:
 	call limpiar_pantalla
@@ -1322,9 +1270,6 @@ SIGUE_MENU:
 	cmp AH, 42h
 	je PROMOVER_O_DEGRADAR
 	jmp SIGUE_MENU
-;;--------------------------------------------FIN MENU ----------------------------------------------
-
-;;--------------------------------------------ESTADISTICAS----------------------------------------------
 
 ESTADISTICAS:
 	call limpiar_pantalla
@@ -1423,13 +1368,6 @@ TERMINAR_LECTURA_ESTADISTICAS:
 
 	jmp MENU
 
-
-;;--------------------------------------------FIN ESTADISTICAS----------------------------------------------
-
-
-
-
-;;--------------------------------------------PROMOVER O DEGRADAR----------------------------------------------
 
 PROMOVER_O_DEGRADAR:
 	call limpiar_pantalla
@@ -1601,13 +1539,6 @@ FINAL_LEER_USUARIO_PROMOVER_DEGRADAR:
 FINAL_PROMOVER_DEGRADAR:
 	jmp MENU
 
-;;--------------------------------------------FIN PROMOVER O DEGRADAR----------------------------------------------
-
-
-
-
-;;--------------------------------------------DESBLOQUER USUARIO----------------------------------------------
-
 DESBLOQUEAR_USUARIO:
 	call limpiar_pantalla
 	;Limpiar buffer
@@ -1741,10 +1672,6 @@ FINAL_LEER_USUARIO_DESBLOQUEO:
 	;
 FINAL_DESBLOQUEO_USUARIO:
 	jmp MENU
-
-;;--------------------------------------------FIN DESBLOQUEAR USUARIO----------------------------------------------
-
-;;--------------------------------------------REPORTE DEL SISTEMA----------------------------------------------
 
 REPORTE_DEL_SISTEMA:
 	;Limpiar Pantalla
@@ -2281,9 +2208,6 @@ TERMINA_TABLA_TOP:
 	mov AH, 01h
 	int 21h	
 	jmp MENU
-;;--------------------------------------------FIN REPORTE DEL SISTEMA----------------------------------------------
-
-;;--------------------------------------------ORDENAMIENTO ----------------------------------------------
 
 ORDENAMIENTO:
 	;;Limpiar Pantalla
@@ -2851,10 +2775,6 @@ TERMINAR_ESCRITURA_USUARIO:
 	;
 	jmp MENU
 
-;;--------------------------------------------FIN ORDENAMIENTO ----------------------------------------------
-
-;;--------------------------------------------INICIO ULTIMAS PARTIDAS ----------------------------------------------
-
 ULTIMAS_PARTIDAS:
 	;;Limpiar Pantalla
 	call limpiar_pantalla
@@ -2960,10 +2880,6 @@ TERMINAR_LECTURA:
 
 	jmp MENU
 
-
-;;--------------------------------------------FIN ULTIMAS PARTIDAS ----------------------------------------------
-
-;;-----------------------------------------INICIO TABLERO-----------------------------------------
 CONFIG_JUEGO:
 	;;reiniciar variables juego
 	mov vidas, 03h
@@ -3048,7 +2964,7 @@ GAME_OVER:
 	jmp MENU
     ;jmp FINAL_PROGRAMA
 
-;; ==============================================  SUBRUTINAS  ==============================================
+
 ;;imprimir lista_puntajes
 IMPRIMIR_LISTA_PUNTAJES:
 	;;Limpiar Pantalla
@@ -3286,8 +3202,6 @@ SI_PASO:
 	mov [DI], CL
 FINAL_DELAY:
 	ret
-
-;; ---------------------------------------------- MOVER JUGADOR ----------------------------------------------
 ;; 
 MOVER_JUGADOR:
 	;;Colocar en mapa
@@ -3332,8 +3246,7 @@ REEMPLAZAR_ACERA_JUGADOR:
 	call COLOCAR_EN_MAPA
 retorno_mover_jugador:
 	ret
-;; ---------------------------------------------- FIN MOVER JUGADOR ----------------------------------------------
-;; ----------------------------------------------- DETECTAR TECLA ------------------------------------------------------
+
 DETECTAR_TECLA:
 	mov AH, 01h 
 	int 16h
@@ -3354,21 +3267,23 @@ PINTAR_ACERA_JUGADOR:
 SIG:
 	mov AH, 00h
 	int 16h
-	;;AH ->  scan code
-	;; flecha arriba -> 48h
-	;; flecha abajo -> 50h
-	;; flecha derecha -> 4dh
-	;; flecha izquierda -> 4bh
+
+
 	cmp AH, 48h
 	je MOVER_ARRIBA	
+
 	cmp AH, 50h
 	je MOVER_ABAJO
+
 	cmp AH, 4dh
 	je MOVER_DERECHA
+
 	cmp AH, 4bh
 	je MOVER_IZQUIERDA
+
 	cmp AH, 01h
 	je PAUSA_JUEGO
+
 	jmp FIN_DETECTAR_TECLA
 MOVER_ARRIBA:
 	cmp fila_jugador, 02h
@@ -3457,9 +3372,6 @@ PERDER_CHOQUE:
 FIN_DETECTAR_TECLA:
 	ret
 
-
-
-;;----------------------------------------------- MOVER VEHICULOS -----------------------------------------------
 ;; cada fila tiene -> 27h columnas
 ;; max 16h columnas  
 MOVER_VEHICULOS:
@@ -3582,7 +3494,6 @@ retorno_mov_vehiculos:
 	pop AX
 	ret
 
-;;----------------------------------------------MOVER DERECHA OBJETO----------------------------------------------
 ;;entrada: AL -> columna
 ;;         AH -> fila
 ;;         BL -> objeto
@@ -3623,7 +3534,6 @@ NOQUITAR_VIDA:
 	pop BX
 	ret
 
-;;----------------------------------------------MOVER DERECHA CAMION----------------------------------------------
 ;;entrada: AL -> columna
 ;;         AH -> fila
 ;;         BL -> objeto
@@ -3674,9 +3584,6 @@ NOQUITAR_VIDACAMION:
 RETORNO_MOV_CAMION:
 	ret
 
-
-;;----------------------------------------------FIN MOVER DERECHA OBJETO----------------------------------------------
-;; ---------------------------------------------- MOVER IZQUIERDA OBJETO ----------------------------------------------
 ;;entrada: AL -> columna
 ;;         AH -> fila
 ;;         BL -> objeto
@@ -3716,8 +3623,6 @@ NOQUITAR_VIDAIZQ:
 	pop BX
 	ret
 	
-
-;; ---------------------------------------------- POSICIONAR VEHICULOS ----------------------------------------------
 ;;posiciona los vehiculos en el tablero
 POSICIONAR_VEHICULOS:
 	mov cont_fila, 02h
@@ -3754,7 +3659,6 @@ NO_CAMION:
 	jbe ciclo_colocar_vehiculos
 	ret
 
-;; ---------------------------------------------- GENERAR NUMEROS ALEATORIOS ----------------------------------------------
 ;; BL -> limite inferior
 ;; BH -> limite superior
 ;; SALIDA:
@@ -3787,7 +3691,7 @@ NUMERO_RANDOM:
 	;;AH -> NUMERO RANDOM
 	ret
 
-;; ---------------------------------------------- ACTUALIZAR CRONOMETRO ----------------------------------------------
+
 INCREMENTAR_CRONOMETRO:
 	inc contsegundo
 	cmp contsegundo, 3ch
@@ -3800,9 +3704,7 @@ INCREMENTAR_CRONOMETRO:
 	inc conthora
 FIN_CRONOMETRO:
 	ret
-;; ---------------------------------------------- FIN ACTUALIZAR CRONOMETRO ----------------------------------------------
 
-;; ---------------------------------------------- Tablero Base --------------------------------------------------
 TABLERO_BASE:
 	;; Y filas 1 -> 17
 	;; X columnas 0 -> 27
@@ -3843,9 +3745,7 @@ IMPRIMIR_CARRILES:
 	cmp fila_tablero, 16
 	jbe IMPRIMIR_CARRILES
 	ret
-;; ---------------------------------------------- FIN Tablero Base ----------------------------------------------
 
-;; ---------------------------------------------- COL0CAR EN MAPA ----------------------------------------------
 ;;Colocar en mapa
 ;;Entrada: AL -> columna
 ;;         AH -> fila
@@ -3866,9 +3766,7 @@ COLOCAR_EN_MAPA:
 	add SI, AX
 	mov [SI], BL
 	ret
-;; ---------------------------------------------- FIN COL0CAR EN MAPA ----------------------------------------------
 
-;; --------------------------------------------- OBTENER DE MAPA ---------------------------------------------
 ;; obtener_de_mapa -
 ;; ENTRADA:
 ;;  AL -> x COLUMNA del elemento
@@ -3891,9 +3789,7 @@ OBTENER_DE_MAPA:
 	add SI, AX
 	mov BL, [SI]
 	ret
-;; --------------------------------------------- FIN OBTENER DE MAPA ---------------------------------------------
 
-;; ---------------------------------------------- PINTAR MAPA ----------------------------------------------
 ;;sprites a pintar
 ;;pintar jugador acer
 pintar_jugador_acera:
@@ -4024,8 +3920,6 @@ ciclo_columnas_mapa_loop:
 		loop ciclo_filas_mapa
 		ret
 
-;; ---------------------------------------------- IMPRIMIR SPRITE ----------------------------------------------
-
 ;;Imprimir Sprite 8x8
 ;;Entrada : direccion_sprite -> offset del sprite
 ;;          SI -> coordena fila de 00 a 18 HEX o 0 a 24 DEC
@@ -4087,9 +3981,7 @@ pintar_pixel:
 		pop DS
 		ret
 
-;; ---------------------------------------------- FIN IMPRIMIR SPRITE ----------------------------------------------
 
-;; ---------------------------------------------- ROW MAYOR ----------------------------------------------
 ;Converti coordenada x,y a indice. Formula: indice = fila*N_columnas + columna
 ;Entrada :  SI -> coordenada fila
 ;           DI -> coordenada columna
@@ -4100,9 +3992,7 @@ ROW_MAYOR:
     add AX, DI
     ret
 
-;; ---------------------------------------------- FIN ROW MAYOR ----------------------------------------------
 
-;; ---------------------------------------------- LIMPIAR PANTALLA ----------------------------------------------
 ;; limpiar_pantalla - limpia la pantalla
 limpiar_pantalla:
 		;;Colocal Cursos en 0,0
@@ -4118,9 +4008,7 @@ ciclo_limpiar_pantalla:
 		int 21
 		loop ciclo_limpiar_pantalla
 		ret
-;; ---------------------------------------------- FIN LIMPIAR PANTALLA ----------------------------------------------
 
-;; ---------------------------------------------- IMPRIMIR CADENA RESULTADO ----------------------------------------------
 ;; numAstr - convierte un número entero en cadena
 ;;     Entrada: AX -> numero de entrada
 ;;				DI -> offset de la cadena
@@ -4169,8 +4057,7 @@ incrementa_ant:
     jne unidad               ;;; Volver a incrementar unidades
 retorno:        
     ret                      ;;; Si no retornar
-;; ---------------------------------------------- FIN IMPRIMIR CADENA RESULTADO ----------------------------------------------
-;; ------------------------------------------------ IMPRIMIR cadena_punteo ----------------------------------------------
+
 ;;imprime el cadena_punteo en pantalla
 imprimir_cadena_punteo:
 	;;Se mueven los parametros de la funcion
@@ -4189,7 +4076,7 @@ imprimir_cadena_punteo:
 	int 21
 	ret
 
-;; ---------------------------------------------- IMPRIMIR VIDA ----------------------------------------------
+
 ;;segun el numero de vidas se imprime el caracter de vida o no vida
 imprimir_vidas:
 	mov DH, 00 ;; y fila
@@ -4218,8 +4105,7 @@ ciclo:
 	loop ciclo_imp_vidas
 	ret
 
-;; ---------------------------------------------- FIN IMPRIMIR VIDA ----------------------------------------------
-;; ---------------------------------------------- IMPRIMIR TIEMPO ----------------------------------------------
+
 ;;imprime el tiempo en pantalla
 imprimir_tiempo:
 	;;Se mueven los parametros de la funcion
@@ -4250,8 +4136,6 @@ imprimir_tiempo:
 	int 21
 	ret
 
-;; ---------------------------------------------- FIN IMPRIMIR TIEMPO ----------------------------------------------
-;; ---------------------------------------------- IMPRIMIR USUARIO ----------------------------------------------
 ;;imprime el usuario en pantalla
 imprimir_usuario_footer:
 	mov DH, 18 ;; y fila
@@ -4278,8 +4162,6 @@ imprimir_usuario_footer:
 	int 21
 	ret
 
-;; ---------------------------------------------- FIN IMPRIMIR USUARIO ----------------------------------------------
-;; ---------------------------------------------- IMPRIMIR FECHA ----------------------------------------------
 
 ;;imprime la fecha en pantalla
 imprimir_fechahora_footer:
@@ -4326,8 +4208,6 @@ imprimir_fechahora_footer:
 
 	ret
 
-;; ---------------------------------------------- FIN IMPRIMIR FECHA ----------------------------------------------
-;; ----------------------------------------------IMPRIMIR GAME OVER ----------------------------------------------
 ;;imprime el game over en pantalla
 imprimir_gameover:
 	mov DH, 0b ;; y fila
@@ -4371,7 +4251,6 @@ e1:
 e3:
 	ret
 
-;-------------------------------------------LIMPIAR BUFFERS-------------------------------------------
 ;;BX -> Offset buffer
 
 limpiar_buffer:
@@ -4387,6 +4266,6 @@ ciclo_limpiar_buffer:
 	ret
 FINAL_PROGRAMA:
 	call limpiar_pantalla
-;;---------------------------------------FIN_INSTRUCCIONES---------------------------------------
+
 .EXIT
 END  
