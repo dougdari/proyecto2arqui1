@@ -18,14 +18,11 @@ SIZE_NAME	 			equ 20
 SIZE_PASSWORD 			equ 25
 NO_BLOQUEADO			equ 00
 BLOQUEADO				equ 01
-;;-----------------------------------------FIN USUARIOS-----------------------------------------
 
-;;---------------------------------------FIN CONSTANTES---------------------------------------
 .MODEL small
-.RADIX 16 ;;HEXADECIMAL
+.RADIX 16 
 .STACK
 .DATA
-;;----------------------------------------- HEADER TABLERO-----------------------------------------
 
 vidas dw 0003h
 vida_caracter db "O  $"
