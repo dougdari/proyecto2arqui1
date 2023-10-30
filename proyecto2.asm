@@ -451,9 +451,9 @@ cadena_menu_pause				db "	F1	CONTINUAR",0ah,0ah
 	mov DH, 00h
 	mov DL, 00h
 	int 10h
-	;mov DX, offset presentacion
-	;mov AH, 09h
-	;int 21h
+	mov DX, offset presentacion
+	mov AH, 09h
+	int 21h
 	;;Retardo de 2 segundos
 	MOV SI, 2710h
 et2:	
