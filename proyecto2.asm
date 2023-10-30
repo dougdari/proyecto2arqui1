@@ -182,8 +182,8 @@ presentacion db 0ah,0ah,0ah,0ah," Universidad de San Carlos de Guatemala",0ah,0a
 			 db " Ensambladores 1",0ah,0ah
 			 db " Seccion A",0ah,0ah
 			 db " Segundo Semestre 2023",0ah,0ah,0ah,0ah
-			 db " Nombre : Douglas Dario Rivera Ojeda",0ah,0ah
-			 db " Carnet : 201122881","$"
+			 db " Douglas Dario Rivera Ojeda",0ah,0ah
+			 db " 201122881","$"
 
 
 usuarios_archivo db "USRS.ACE", 00
