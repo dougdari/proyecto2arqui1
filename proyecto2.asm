@@ -272,13 +272,13 @@ orientacion_puntaje 								db 00h
 tiempo1_puntaje 									dw 0000h
 tiempo2_puntaje 									dw 0000h
 velocidad_ordenamiento 								db 00h 
-cadena_fin_ordenamiento 							db "ORDENAMIENTO FINALIZADO              $"
+cadena_fin_ordenamiento 							db "Proceso terminado                $"
 rr_delay 											dw 0000h
 hh_delay 											dw 0000h
 cadena_elegir_parametro 							db "ELEGIR PARAMETRO DE ORDENAMIENTO", 0ah, 0ah, "     1. PUNTAJE", 0ah, "     2. TIEMPO", 0ah, 0ah, "$"
 cadena_elegir_orientacion 							db "ELEGIR ORIENTACION DE ORDENAMIENTO", 0ah, 0ah, "     1. ASCENDENTE", 0ah, "     2. DESCENDENTE", 0ah, 0ah, "$"
 cadena_elegir_velocidad 							db "ELEGIR VELOCIDAD DE ORDENAMIENTO  ", 0ah, 0ah, "     1. LENTA      ", 0ah, "     2. MEDIA       ", 0ah, "     3. RAPIDA", 0ah, 0ah, "$"
-cadena_tecla_continuar 								db "PRESIONE ESC PARA INICIAR SIMULACION$"
+cadena_tecla_continuar 								db "Presione ESC para iniciar$"
 nombre_archivo_ordenamiento 						db "BUBBLE.ACE",00
 handle_ordenamiento 								dw 0000h
 offset_escribir_file 								dw 0000h
@@ -412,13 +412,13 @@ password_anterior 									db 19 dup(00)
 offset_usuario_coincide 							dw 0000h
 codigo_no_bloqueado 								db 00h
 codigo_bloqueado 									db 01h
-cadena_usuario_bloqueado 							db "USUARIO BLOQUEADO$"
+cadena_usuario_bloqueado 							db "Error ->>> Usuario bloqueado!$"
 buffer_desbloqueo_usuario							db 32,00 
 													db 32 dup(00)
-cadena_titulo_desbloqueo_usuario 					db "              DESBLOQUEO USUARIO            $"
+cadena_titulo_desbloqueo_usuario 					db "          DESBLOQUEAR USUARIO            $"
 cadena_ingrese_usuario								db "INGRESE USUARIO: $"
 offset_desbloque_usuario 							dw 0000h
-cadena_usuario_desbloqueado 						db "USUARIO DESBLOQUEADO$"
+cadena_usuario_desbloqueado 						db "Usuario desbloqueado!!!$"
 cadena_error_no_existe_usuario 						db "ERROR ->>> Usuaio no existe!$"
 
 cadena_titulo_promover_usuario 						db "          PROMOVER O DEGRADAR          $"
@@ -1097,8 +1097,6 @@ LOGIN:
 	mov AL, 00
 	mov [DI], AL
 
-;;------------------------------------PASSWORD------------------------------------
-
 	;;colocar cursor en la posicion fila, col -> 0ah, 06h
 	mov AH, 02h
 	mov BH, 00h
@@ -1123,8 +1121,6 @@ LOGIN:
 	add DI, SI
 	mov AL, 00
 	mov [DI], AL
-
-;;------------------------------------VERIFICAR CREDENCIALES------------------------------------
 
 	;;abrir archivo de usuarios
 	mov AH, 3dh
@@ -2430,7 +2426,7 @@ SEGUIR_LOOP_ORDENAMIENTO:
 	int 10h
 	;Imprimir caracter '*'
 	mov AH, 02h
-	mov DL, '*'
+	mov DL, '>'
 	int 21h
 	;posicionar cursor
 	inc count_marcador
@@ -2441,7 +2437,7 @@ SEGUIR_LOOP_ORDENAMIENTO:
 	int 10h
 	;Imprimir caracter '*'
 	mov AH, 02h
-	mov DL, '*'
+	mov DL, '>'
 	int 21h
 	;Delay de velocidad de ordenamiento
 	MOV SI, rr_delay
