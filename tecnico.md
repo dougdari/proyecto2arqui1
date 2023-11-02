@@ -18,19 +18,19 @@ el juego y poder jugarlo.
 
 ## variables utilizadas para guardar distintos mensajes o datos
 
-JUGADOR_CARRIL	         equ 01 
-JUGADOR_ACERA	         equ 02 
-ACERA			         equ 03 
-CARRIL			         equ 04 
-R_CARROMORADO	         equ 05 
-R_CARROAZUL		         equ 06
-L_CARROVERDE	         equ 07 
-L_CARROAMARILLO	         equ 08 
-CAMIONINI		         equ 09 
-CAMIONFIN		         equ 10 
-USUARIO_NORMAL			 equ 02 
-USUARIO_ADMIN 			 equ 01 
-USUARIO_ADMIN_ORIGINAL	 equ 00 
+JUGADOR_CARRIL	         equ 01  
+JUGADOR_ACERA	         equ 02   
+ACERA			         equ 03   
+CARRIL			         equ 04   
+R_CARROMORADO	         equ 05      
+R_CARROAZUL		         equ 06   
+L_CARROVERDE	         equ 07    
+L_CARROAMARILLO	         equ 08    
+CAMIONINI		         equ 09    
+CAMIONFIN		         equ 10    
+USUARIO_NORMAL			 equ 02    
+USUARIO_ADMIN 			 equ 01    
+USUARIO_ADMIN_ORIGINAL	 equ 00   
 
 SIZE_NAME	 			 equ 20
 SIZE_PASSWORD 			 equ 25
