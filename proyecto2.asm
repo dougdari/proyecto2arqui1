@@ -2432,7 +2432,7 @@ SEGUIR_LOOP_ORDENAMIENTO:
 	mov DH, count_marcador
 	mov DL, 00h
 	int 10h
-	;Imprimir caracter '*'
+	Imprimir caracter '*'
 	mov AH, 02h
 	mov DL, '>'
 	int 21h
