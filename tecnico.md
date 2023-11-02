@@ -1940,1889 +1940,1303 @@ Inicia el loop para mostrar la lista de puntajes y las tablas
         mov DI, offset usuario_tabla_puntaje
         mov CX, 0014h	
 
+### 55. COPIAR_USUARIO_TOP
+Permite mostarar los datos del encabezado del reporte
 
-COPIAR_USUARIO_TOP:
-	mov AL, [SI]
-	mov [DI], AL
-	inc SI
-	inc DI
-	loop COPIAR_USUARIO_TOP
-	;Convertir a cadena el puntaje y guardarlo en puntuacion tabla
-	mov SI, offset_lista_puntajes
-	mov AX, [SI+15h]
-	mov DI, offset puntuacion_tabla
-	mov CX, 05h
-	call numAstr
-	;Convertir a cadena hora de la partida
-	mov SI, offset_lista_puntajes
-	mov AX, [SI+17h]
-	mov DI, offset hora_tabla
-	mov CX, 02h
-	call numAstr
-	;Convertir a cadena minutos de la partida
-	mov SI, offset_lista_puntajes
-	mov AX, [SI+19h]
-	mov DI, offset minuto_tabla
-	mov CX, 02h
-	call numAstr
-	;Convertir a cadena segundos de la partida
-	mov SI, offset_lista_puntajes
-	mov AX, [SI+1Bh]
-	mov DI, offset segundo_tabla
-	mov CX, 02h
-	call numAstr
-	;Escribir en el archivo de Reporte de Sistema fila_tabla_puntaje
-	mov BX, handle_reporte_html
-	mov CX, 004Ah
-	mov DX, offset fila_tabla_puntaje
-	mov AH, 40h
-	int 21h
-	;Nuevo Offset
-	add offset_lista_puntajes, 001Dh
-	;
-	pop CX
-	dec CX
-	cmp CX, 00h
-	jne LOOP_CREAR_HTML_USUARIO
-	;
-TERMINA_TABLA_TOP:
-	;
-	;Fin Tabla de Top 10 Puntajes
-	mov BX, handle_reporte_html
-	mov CX, 0010h
-	mov DX, offset fin_tabla_puntaje
-	mov AH, 40h
-	int 21h
+    COPIAR_USUARIO_TOP:
+        mov AL, [SI]
+        mov [DI], AL
+        inc SI
+        inc DI
+        loop COPIAR_USUARIO_TOP
+       
+        mov SI, offset_lista_puntajes
+        mov AX, [SI+15h]
+        mov DI, offset puntuacion_tabla
+        mov CX, 05h
+        call numAstr
+       
+        mov SI, offset_lista_puntajes
+        mov AX, [SI+17h]
+        mov DI, offset hora_tabla
+        mov CX, 02h
+        call numAstr
+       
+        mov SI, offset_lista_puntajes
+        mov AX, [SI+19h]
+        mov DI, offset minuto_tabla
+        mov CX, 02h
+        call numAstr
+       
+        mov SI, offset_lista_puntajes
+        mov AX, [SI+1Bh]
+        mov DI, offset segundo_tabla
+        mov CX, 02h
+        call numAstr
+       
+        mov BX, handle_reporte_html
+        mov CX, 004Ah
+        mov DX, offset fila_tabla_puntaje
+        mov AH, 40h
+        int 21h
+        
+        add offset_lista_puntajes, 001Dh
+       
+        pop CX
+        dec CX
+        cmp CX, 00h
+        jne LOOP_CREAR_HTML_USUARIO
+        
+### 56. TERMINA_TABLA_TOP
+Finaliza la tabla de los 10 mejores puntajes, y finaliza el archivo html
 
-;;Final Tabla Top 10 Puntajes-----------------------------
+    TERMINA_TABLA_TOP:
+        mov BX, handle_reporte_html
+        mov CX, 0010h
+        mov DX, offset fin_tabla_puntaje
+        mov AH, 40h
+        int 21h
 
-	;;;;;;
-	;escribir el cierre del html en el archivo
-	mov BX, handle_reporte_html
-	mov CX, 000Eh
-	mov DX, offset fin_html
-	mov AH, 40h
-	int 21h
+        mov BX, handle_reporte_html
+        mov CX, 000Eh
+        mov DX, offset fin_html
+        mov AH, 40h
+        int 21h
 
-	;cerrar archivo
-	mov BX, handle_reporte_html
-	mov AH, 3eh
-	int 21h
+        ;cerrar archivo
+        mov BX, handle_reporte_html
+        mov AH, 3eh
+        int 21h
 
-	;Posicionar Cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 12h ;;fila
-	mov DL, 00h ;;columna
-	int 10h
-	;Imprimir cadena_reporte_realizado
-	mov DX, offset cadena_reporte_realizado
-	mov AH, 09h
-	int 21h
-	;Esperar a presionar una tecla
-	mov AH, 01h
-	int 21h	
-	jmp MENU
+        ;Posicionar Cursor
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 12h ;;fila
+        mov DL, 00h ;;columna
+        int 10h
+       
+        mov DX, offset cadena_reporte_realizado
+        mov AH, 09h
+        int 21h
+      
+        mov AH, 01h
+        int 21h	
+        jmp MENU
 
-ORDENAMIENTO:
-	;;Limpiar Pantalla
-	call limpiar_pantalla
-	;;Posicionar Cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 00h ;;fila
-	mov DL, 00h ;;columna
-	int 10h
-	;;Imprimir cadena_titulo_ordenamiento
-	mov DX, offset cadena_titulo_ordenamiento
-	mov AH, 09h
-	int 21h
-	;;Posicionar Cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 02h ;;fila
-	mov DL, 03h ;;columna
-	int 10h
-	;;Imprimir cadena_elegir_parametro
-	mov DX, offset cadena_elegir_parametro
-	mov AH, 09h
-	int 21h
-	;;Posicionar Cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 05h ;;fila
-	mov DL, 03h ;;columna
-	int 10h
-	;Pedir opcion de parametro
-	mov AH, 01h
-	int 21h
-	mov parametro_puntaje, AL
-	;;Posicionar Cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 02h ;;fila
-	mov DL, 03h ;;columna
-	int 10h
-	;;Imprimir cadena_elegir_orientacion
-	mov DX, offset cadena_elegir_orientacion
-	mov AH, 09h
-	int 21h
-	;;Posicionar Cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 05h ;;fila
-	mov DL, 03h ;;columna
-	int 10h
-	;Pedir opcion de parametro
-	mov AH, 01h
-	int 21h
-	mov orientacion_puntaje, AL
+### 57. ORDENAMIENTO
+Permite seleccionar el tipo de ordenamiento y sus opciones
 
-	;;Posicionar Cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 02h ;;fila
-	mov DL, 03h ;;columna
-	int 10h
-	;;Imprimir cadena_elegir_velocidad
-	mov DX, offset cadena_elegir_velocidad
-	mov AH, 09h
-	int 21h
-	;;Posicionar Cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 05h ;;fila
-	mov DL, 03h ;;columna
-	int 10h
-	;Pedir opcion de velocidad
-	mov AH, 01h
-	int 21h	
-	mov velocidad_ordenamiento, AL
+    ORDENAMIENTO:
+        call limpiar_pantalla
+        
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 00h ;;fila
+        mov DL, 00h ;;columna
+        int 10h
+        
+        mov DX, offset cadena_titulo_ordenamiento
+        mov AH, 09h
+        int 21h
+        
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 02h 
+        mov DL, 03h 
+        int 10h
+       
+        mov DX, offset cadena_elegir_parametro
+        mov AH, 09h
+        int 21h
+       
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 05h 
+        mov DL, 03h 
+        int 10h
+        
+        mov AH, 01h
+        int 21h
+        mov parametro_puntaje, AL
+        
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 02h 
+        mov DL, 03h 
+        int 10h
+        
+        mov DX, offset cadena_elegir_orientacion
+        mov AH, 09h
+        int 21h
+       
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 05h 
+        mov DL, 03h 
+        int 10h
+        
+        mov AH, 01h
+        int 21h
+        mov orientacion_puntaje, AL
 
-	cmp velocidad_ordenamiento, '1'
-	je VELOCIDAD_LENTA
-	cmp velocidad_ordenamiento, '2'
-	je VELOCIDAD_MEDIA
-	cmp velocidad_ordenamiento, '3'
-	je VELOCIDAD_RAPIDA
-VELOCIDAD_RAPIDA:	
-	;Retardo para 0.3 segundos Rapida
-	mov rr_delay, 07d0h
-	mov hh_delay, 0a41h
-	jmp SEGUIR_ORDENAMIENTO
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 02h ;;fila
+        mov DL, 03h ;;columna
+        int 10h
+       
+        mov DX, offset cadena_elegir_velocidad
+        mov AH, 09h
+        int 21h
+      
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 05h ;;fila
+        mov DL, 03h ;;columna
+        int 10h
+        
+        mov AH, 01h
+        int 21h	
+        mov velocidad_ordenamiento, AL
 
-VELOCIDAD_MEDIA:
-	;Retardo para 0.8 segundos Media
-	mov rr_delay, 07d0h
-	mov hh_delay, 1b58h
-	jmp SEGUIR_ORDENAMIENTO
+        cmp velocidad_ordenamiento, '1'
+        je VELOCIDAD_LENTA
+        cmp velocidad_ordenamiento, '2'
+        je VELOCIDAD_MEDIA
+        cmp velocidad_ordenamiento, '3'
+        je VELOCIDAD_RAPIDA
 
-VELOCIDAD_LENTA:
-	;Retardo para 1.3 segundos Lenta
-	mov rr_delay, 07d0h
-	mov hh_delay, 02C6Fh
+### 58. VELOCIDAD_RAPIDA
+Permite setear la velocidad mas rapida
 
-SEGUIR_ORDENAMIENTO:
+    VELOCIDAD_RAPIDA:	
+        
+        mov rr_delay, 07d0h
+        mov hh_delay, 0a41h
+        jmp SEGUIR_ORDENAMIENTO
 
-	;;Abrir el archivo de Puntajes
-	mov AH, 3dh
-	mov AL, 00h ;Solo lectura
-	mov DX, offset nombre_archivo_puntajes
-	int 21h
+### 59. VELOCIDAD_MEDIA
+Permite setear la velocidad intermedia
 
-	;error de apertura
-	;jc ERROR_APERTURA
+    VELOCIDAD_MEDIA:
+        
+        mov rr_delay, 07d0h
+        mov hh_delay, 1b58h
+        jmp SEGUIR_ORDENAMIENTO
 
-	mov handle_puntajes, AX
+### 60. VELOCIDAD_LENTA
+Permite setear la velocidad lenta
 
-	;;Leer los Puntajes y guardarlos en lista_puntajes
-	mov cantidad_puntajes_leidos, 00h
-	mov offset_lista_puntajes, offset lista_puntajes
-LEER_PUNTAJES:
-	;;leer usuario
-	mov AH, 3fh
-	mov BX,	handle_puntajes
-	mov CX, 1Dh ;;se lee toda la estructura
-	mov DX, offset_lista_puntajes
-	int 21h
+    VELOCIDAD_LENTA:
+        
+        mov rr_delay, 07d0h
+        mov hh_delay, 02C6Fh
 
-	;;error de lectura
-	;jc ERROR_LECTURA
+### 61. SEGUIR_ORDENAMIENTO
+Permite continuar el ordenamiento
 
-	add offset_lista_puntajes, AX
+    SEGUIR_ORDENAMIENTO:
 
-	cmp AX, 00h
-	je TERMINAR_LECTURA_PUNTAJES
-	inc cantidad_puntajes_leidos
-	jmp LEER_PUNTAJES
+        mov AH, 3dh
+        mov AL, 00h 
+        mov DX, offset nombre_archivo_puntajes
+        int 21h
+
+        mov handle_puntajes, AX
+
+        mov cantidad_puntajes_leidos, 00h
+        mov offset_lista_puntajes, offset lista_puntajes
+
+### 62. LEER_PUNTAJES
+Comienta la lectura de el archivo de los puntajes
+
+    LEER_PUNTAJES:
+       
+        mov AH, 3fh
+        mov BX,	handle_puntajes
+        mov CX, 1Dh 
+        mov DX, offset_lista_puntajes
+        int 21h
+
+        add offset_lista_puntajes, AX
+
+        cmp AX, 00h
+        je TERMINAR_LECTURA_PUNTAJES
+        inc cantidad_puntajes_leidos
+        jmp LEER_PUNTAJES
+
+### 63. TERMINAR_LECTURA_PUNTAJES
+Permite terminar la lectura de los puntajes para el ordenamiento
 	
-TERMINAR_LECTURA_PUNTAJES:
-	;;cerrar archivo
-	mov BX, handle_puntajes
-	mov AH, 3eh
-	int 21h
-	;;
-	cmp bandera_solo_ordenamiento, 01h
-	je OMITIR_REPORTE
-	;
-	call IMPRIMIR_LISTA_PUNTAJES
-	;;Esperar a que se presione una tecla para comenzar la simulacion
-	;posicionar cursor
-	mov AH, 0002h
-	mov BH, 00h
-	mov DH, 18h ;;fila
-	mov DL, 00h ;;columna
-	int 10h
-	;Imprimir cadena_esperar_tecla
-	mov DX, offset cadena_tecla_continuar
-	mov AH, 09h
-	int 21h
-	;;esperar a presionar una tecla
-	mov AH, 08h
-	int 21h
-	;
-	;Leer fecha
-	mov AH, 2Ah
-	int 21h
-	;Guardar Fecha
-	mov dia_ordenamiento, DL
-	mov mes_ordenamiento, DH
-	mov anho_ordenamiento, CX
-	;Leer hora
-	mov AH, 2Ch
-	int 21h
-	;Guardar Hora
-	mov hora_ordenamiento, CH
-	mov minutos_ordenamiento, CL
-	mov segundos_ordenamiento, DH
-	;
-OMITIR_REPORTE:
-	;Comprobar que la cantidad de puntajes leidos sea mayor a 1
-	cmp cantidad_puntajes_leidos, 01h
-	jle FINAL_ORDENAMIENTO
-;;ORDENAMIENTO DE REGISTROS
-ORDENAMIENTO_PUNTAJES:
-	mov CH, 00h
-	mov CL, cantidad_puntajes_leidos
-	dec CX
-	mov offset_posicion_puntajes, offset lista_puntajes
-	mov count_ordenados, 00h
-	mov count_marcador, 02h
-LOOP_ORDENAMIENTO:
-	;Verificar Buffer para ver si se presiono una letra
-	mov AH, 01h
-	int 16h
-	jz SEGUIR_LOOP_ORDENAMIENTO 
-	;Leer tecla
-	mov AH, 00h
-	int 16h
-	jmp FINAL_ORDENAMIENTO
-SEGUIR_LOOP_ORDENAMIENTO:
-	push CX
-	;Imprimir lista de puntajes
-	cmp bandera_solo_ordenamiento, 01h
-	je OMITIR_IMPRIMIR_LISTA
-	call IMPRIMIR_LISTA_PUNTAJES
-	;;;Imprimir marcadores de los usuarios que se comparan
-	;posicionar cursor
-	mov AH, 0002h
-	mov BH, 00h
-	mov DH, count_marcador
-	mov DL, 00h
-	int 10h
-	;Imprimir caracter '*'
-	;mov AH, 02h
-	;mov DL, '>'
-	;int 21h
-	;posicionar cursor
-	inc count_marcador
-	mov AH, 0002h
-	mov BH, 00h
-	mov DH, count_marcador
-	mov DL, 00h
-	int 10h
-	;Imprimir caracter '*'
-	;mov AH, 02h
-	;mov DL, '>'
-	;int 21h
-	;Delay de velocidad de ordenamiento
-	MOV SI, rr_delay
-et_2:	
-	DEC SI
-	JZ et_3
-	MOV DI, hh_delay
-et_1:		
-	DEC DI
-	JNZ et_1
-	JMP et_2
-et_3:
-	;
-	;Comparar que parametro se eligio
-	;
-OMITIR_IMPRIMIR_LISTA:
-	cmp parametro_puntaje, '1'
-	je POR_PUNTAJE
-	cmp parametro_puntaje, '2'
-	je POR_TIEMPO
-	;
-POR_PUNTAJE:
-	;Guardar en AX y BX los puntajes a comparar
-	mov SI, offset_posicion_puntajes
-	mov AH, [SI + 16h] ;puntaje 1
-	mov AL, [SI + 15h]
-	mov BH, [SI + 33h] ;puntaje 2
-	mov BL, [SI + 32h]
-	jmp ORIENTACION
-POR_TIEMPO:
-	;;Guardar en AX y BX los tiempos a comparar en segundos
-	;Guardar Tiempo 1
-	mov SI, offset_posicion_puntajes
-	mov AH, [SI + 18h] ;hora 1
-	mov AL, [SI + 17h]
-	mov CX, 0E10h ;multiplicador de 3600
-	mul CX ;Resultando en DX-AX
-	mov tiempo1_puntaje, AX
-	mov AH, [SI + 1Ah] ;minuto 1
-	mov AL, [SI + 19h]
-	mov CX, 3Ch ;multiplicador de 60
-	mul CX ;Resultando en DX-AX
-	add tiempo1_puntaje, AX
-	mov AH, [SI + 1Ch] ;segundo 1
-	mov AL, [SI + 1Bh]
-	add tiempo1_puntaje, AX
-	;Guardar Tiempo 2
-	mov AH, [SI + 35h] ;hora 2
-	mov AL, [SI + 34h]
-	mov CX, 0E10h ;multiplicador de 3600
-	mul CX ;Resultando en DX-AX
-	mov tiempo2_puntaje, AX
-	mov AH, [SI + 37h] ;minuto 2
-	mov AL, [SI + 36h]
-	mov CX, 3Ch ;multiplicador de 60
-	mul CX ;Resultando en DX-AX
-	add tiempo2_puntaje, AX
-	mov AH, [SI + 39h] ;segundo 2
-	mov AL, [SI + 38h]
-	add tiempo2_puntaje, AX
-	;Guardar en AX y BX los tiempos a comparar en segundos
-	mov AX, tiempo1_puntaje
-	mov BX, tiempo2_puntaje
-	;
-ORIENTACION:
-	;Comparar que Orientacion se eligio
-	cmp orientacion_puntaje, '1'
-	je ASCENDENTE
-	cmp orientacion_puntaje, '2'
-	je DESCENDENTE
-ASCENDENTE:
-	;Comparacion ascendente
-	cmp AX, BX
-	jg INTERCAMBIO
-	jmp FINAL_LOOP_ORDENAMIENTO
-DESCENDENTE:
-	;Comparacion descendente
-	cmp BX, AX
-	jg INTERCAMBIO
-	jmp FINAL_LOOP_ORDENAMIENTO
-INTERCAMBIO:
-	mov CX, 001Dh
-	mov DI, SI
-LOOP_INTERCAMBIAR_USUARIOS:
-	mov AH, [DI + 1Dh]
-	mov AL, [DI]
-	mov [DI + 1Dh], AL
-	mov [DI], AH
-	inc DI
-	loop LOOP_INTERCAMBIAR_USUARIOS
-	;Intercambiar los puntajes
-	inc count_ordenados
-FINAL_LOOP_ORDENAMIENTO:
-	add offset_posicion_puntajes, 001Dh
-	pop CX
-	dec CX
-	cmp CX, 00h
-	jne LOOP_ORDENAMIENTO
-	;
-	cmp count_ordenados, 00h
-	jne ORDENAMIENTO_PUNTAJES
-FINAL_ORDENAMIENTO:
-	cmp bandera_solo_ordenamiento, 01h
-	je REGREAR_REPORTE_SISTEMA
-	;;Imprimir mensaje de ordenamiento finalizado
-	;Colocar cursos en la posicion 25,0
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 18h ;;fila
-	mov DL, 00h ;;columna
-	int 10h
-	;Imprimir mensaje
-	mov DX, offset cadena_fin_ordenamiento
-	mov AH, 09h
-	int 21h
-	;
-	;;Crear Reporte de Ordenamiento
-	;Crear archivo de reporte de ordenamiento
-	mov AH, 3Ch
-	mov CX, 0000h
-	mov DX, offset nombre_archivo_ordenamiento
-	int 21h
-	;
-	mov handle_ordenamiento, AX
+    TERMINAR_LECTURA_PUNTAJES:
+
+        mov BX, handle_puntajes
+        mov AH, 3eh
+        int 21h
+     
+        cmp bandera_solo_ordenamiento, 01h
+        je OMITIR_REPORTE
+     
+        call IMPRIMIR_LISTA_PUNTAJES
+
+        mov AH, 0002h
+        mov BH, 00h
+        mov DH, 18h ;;fila
+        mov DL, 00h ;;columna
+        int 10h
+       
+        mov DX, offset cadena_tecla_continuar
+        mov AH, 09h
+        int 21h
+        ;;esperar a presionar una tecla
+        mov AH, 08h
+        int 21h
+
+        mov AH, 2Ah
+        int 21h
+
+        mov dia_ordenamiento, DL
+        mov mes_ordenamiento, DH
+        mov anho_ordenamiento, CX
+       
+        mov AH, 2Ch
+        int 21h
+      
+        mov hora_ordenamiento, CH
+        mov minutos_ordenamiento, CL
+        mov segundos_ordenamiento, DH
+        
+### 64. ORDENAMIENTO_PUNTAJES
+Permite llevar el contro de los puntajes leidos,  coloca la posicion de la lista de puntajes
+
+    ORDENAMIENTO_PUNTAJES:
+        mov CH, 00h
+        mov CL, cantidad_puntajes_leidos
+        dec CX
+        mov offset_posicion_puntajes, offset lista_puntajes
+        mov count_ordenados, 00h
+        mov count_marcador, 02h
+
+### 65. LOOP_ORDENAMIENTO
+Comienza el loop del ordenamiento y verifica si para o si sige ordenando
+
+    LOOP_ORDENAMIENTO:
+  
+        mov AH, 01h
+        int 16h
+        jz SEGUIR_LOOP_ORDENAMIENTO 
+    
+        mov AH, 00h
+        int 16h
+        jmp FINAL_ORDENAMIENTO
+
+### 66. SEGUIR_LOOP_ORDENAMIENTO
+Permite continuar realizando el ordenamiento
+
+    SEGUIR_LOOP_ORDENAMIENTO:
+        push CX
+        
+        cmp bandera_solo_ordenamiento, 01h
+        je OMITIR_IMPRIMIR_LISTA
+        call IMPRIMIR_LISTA_PUNTAJES
+
+        mov AH, 0002h
+        mov BH, 00h
+        mov DH, count_marcador
+        mov DL, 00h
+        int 10h
+
+        inc count_marcador
+        mov AH, 0002h
+        mov BH, 00h
+        mov DH, count_marcador
+        mov DL, 00h
+        int 10h
 
-	cmp parametro_puntaje, '1'
-	je ESCRIBIR_POR_PUNTAJE
-	cmp parametro_puntaje, '2'
-	je ESCRIBIR_POR_TIEMPO
-ESCRIBIR_POR_PUNTAJE:
-	mov DX, offset cadena_ordenamiento_parametro_puntaje
-	jmp ESCRIBIR_EL_PARAMETRO
-ESCRIBIR_POR_TIEMPO:
-	mov DX, offset cadena_ordenamiento_parametro_tiempo
-ESCRIBIR_EL_PARAMETRO:
-	mov AH, 40h
-	mov BX, handle_ordenamiento
-	mov CX, 0016h
-	int 21h
-	;Escribir por la orientacion que se ordeno
-	cmp orientacion_puntaje, '1'
-	je ESCRIBIR_POR_ASCENDENTE
-	cmp orientacion_puntaje, '2'
-	je ESCRIBIR_POR_DESCENDENTE
-ESCRIBIR_POR_ASCENDENTE:
-	mov DX, offset cadena_ordenamiento_orientacion_ascendente
-	jmp ESCRIBIR_LA_ORIENTACION
-ESCRIBIR_POR_DESCENDENTE:
-	mov DX, offset cadena_ordenamiento_orientacion_descendente
-ESCRIBIR_LA_ORIENTACION:
-	mov AH, 40h
-	mov BX, handle_ordenamiento
-	mov CX, 001Fh
-	int 21h
-	;Escribir la fecha y hora de ordenamiento
-	;Convertir en cadena fecha y hora
-	mov AH, 00h
-	mov AL, dia_ordenamiento
-	mov DI, offset cadena_dia_ordenamiento
-	mov CX, 0002h
-	call numAstr
-	mov AH, 00h
-	mov AL, mes_ordenamiento
-	mov DI, offset cadena_mes_ordenamiento
-	mov CX, 0002h
-	call numAstr
-	mov AX, anho_ordenamiento
-	mov DI, offset cadena_anho_ordenamiento
-	mov CX, 0004h
-	call numAstr
-	mov AH, 00h
-	mov AL, hora_ordenamiento
-	mov DI, offset cadena_hora_ordenamiento
-	mov CX, 0002h
-	call numAstr
-	mov AH, 00h
-	mov AL, minutos_ordenamiento
-	mov DI, offset cadena_minutos_ordenamiento
-	mov CX, 0002h
-	call numAstr
-	mov AH, 00h
-	mov AL, segundos_ordenamiento
-	mov DI, offset cadena_segundos_ordenamiento
-	mov CX, 0002h
-	call numAstr
-	;Escribir Fecha en el archivo de ordenamiento
-	mov AH, 40h
-	mov BX, handle_ordenamiento
-	mov CX, 0012h
-	mov DX, offset cadena_fecha_ordenamiento
-	int 21h
-	;Escribir hora
-	mov AH, 40h
-	mov BX, handle_ordenamiento
-	mov CX, 000Fh
-	mov DX, offset cadena_hor_ordenamiento
-	int 21h
-	;
-	;Comparar segundos al inicio del ordenamiento y al final
-	;Leer hora
-	mov AH, 2Ch
-	int 21h
-	;Guardar Segundos
-	mov segundos_actuales_ordenamiento, DH
-	mov AL, segundos_ordenamiento
-	cmp segundos_actuales_ordenamiento, AL
-	jge CALCULAR_SEGUNDOS_ORDENAMIENTO
-	;Sumar 60 segundos a segundos_actuales_ordenamiento
-	add segundos_actuales_ordenamiento, 3Ch
-	;Restar segundos_actuales_ordenamiento - segundos_ordenamiento
-CALCULAR_SEGUNDOS_ORDENAMIENTO:
-	sub segundos_actuales_ordenamiento, AL
-	;mov segundos_ordenamiento, segundos_actuales_ordenamiento
-	;Converti segundos a cadene en cadena_tiempo_ordenamiento
-	mov AH, 00h
-	mov AL, segundos_actuales_ordenamiento
-	mov DI, offset cadena_tiempo_ordenamiento
-	mov CX, 0002h
-	call numAstr
-	;Escribir tiempo_de_ordenamiento en el archivo de ordenamiento
-	mov AH, 40h
-	mov BX, handle_ordenamiento
-	mov CX, 002Eh
-	mov DX, offset tiempo_de_ordenamiento
-	int 21h
-	;Guardar offset
-	mov offset_escribir_file, offset lista_puntajes
-	;Cargar Contador
-	mov CH, 00
-	mov CL, cantidad_puntajes_leidos
-REPORTE_ORDENAMIENTO:
-	push CX
-	mov SI, offset_escribir_file
-	mov CX, 0014h
-LOOP_ESCRIBIR_USUARIO:
-	mov AL, 00
-	cmp [SI], AL
-	je TERMINAR_ESCRITURA_USUARIO
-	push CX
-	;
-	mov AH, 40h
-	mov BX, handle_ordenamiento
-	mov CX, 0001h
-	mov DX, SI
-	int 21h
-	;
-	inc SI
-	pop CX
-	dec CX
-	cmp CX, 00h
-	jne LOOP_ESCRIBIR_USUARIO
-TERMINAR_ESCRITURA_USUARIO:
-	;Escribir Coma en el archivo de ordenamiento
-	mov AH, 40h
-	mov BX, handle_ordenamiento
-	mov CX, 0001h
-	mov DX, offset coma
-	int 21h
-	;;Escribir puntaje en el archivo de ordenamiento
-	mov SI, offset_escribir_file
-	mov AH, [SI + 16h]
-	mov AL, [SI + 15h]
-	mov CX, 0005h
-	mov DI, offset cadena_puntaje
-	call numAstr
-	;Escribir cadena_puntaje en el archivo
-	mov AH, 40h
-	mov BX, handle_ordenamiento
-	mov CX, 0005h	
-	mov DX, offset cadena_puntaje
-	int 21h
-	;Escribir Coma en el archivo de ordenamiento
-	mov AH, 40h
-	mov BX, handle_ordenamiento
-	mov CX, 0001h
-	mov DX, offset coma
-	int 21h
-	;;Escribir hora en el archivo de ordenamiento
-	mov SI, offset_escribir_file
-	mov AH, [SI + 18h]
-	mov AL, [SI + 17h]
-	mov CX, 0002h
-	mov DI, offset cadena_hora_puntaje
-	call numAstr
-	;Escribir cadena_hora_puntaje en el archivo
-	mov AH, 40h
-	mov BX, handle_ordenamiento
-	mov CX, 0003h
-	mov DX, offset cadena_hora_puntaje
-	int 21h
-	;Escribir minutos en el archivo de ordenamiento
-	mov SI, offset_escribir_file
-	mov AH, [SI + 1Ah]
-	mov AL, [SI + 19h]
-	mov CX, 0002h
-	mov DI, offset cadena_minuto_puntaje
-	call numAstr
-	;Escribir cadena_minuto_puntaje en el archivo
-	mov AH, 40h
-	mov BX, handle_ordenamiento
-	mov CX, 0003h
-	mov DX, offset cadena_minuto_puntaje
-	int 21h
-	;Escribir segundos en el archivo de ordenamiento
-	mov SI, offset_escribir_file
-	mov AH, [SI + 1Ch]
-	mov AL, [SI + 1Bh]
-	mov CX, 0002h
-	mov DI, offset cadena_segundo_puntaje
-	call numAstr
-	;Escribir cadena_segundo_puntaje en el archivo
-	mov AH, 40h
-	mov BX, handle_ordenamiento
-	mov CX, 0002h
-	mov DX, offset cadena_segundo_puntaje
-	int 21h
-	;Escribir Salto de Linea en el archivo de ordenamiento
-	mov AH, 40h
-	mov BX, handle_ordenamiento
-	mov CX, 0002h
-	mov DX, offset salto_linea
-	int 21h
-	;
-	add offset_escribir_file, 001Dh
-	pop CX
-	dec CX
-	cmp CX, 00h
-	jne REPORTE_ORDENAMIENTO
-
-	;cerrar archivo
-	mov BX, handle_ordenamiento
-	mov AH, 3eh
-	int 21h
-	;
-	;Esperar a presionar una tecla
-	mov AH, 01h
-	int 21h
-	;
-	jmp MENU
-
-ULTIMAS_PARTIDAS:
-	;;Limpiar Pantalla
-	call limpiar_pantalla
-
-	;Posicionar Cursos 0,0 e imprimir titulo de puntajes
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 00h ;;fila
-	mov DL, 00h	;;columna
-	int 10h
-
-	mov DX, offset cadena_titulo_ultimos_puntajes
-	mov AH, 09h
-	int 21h
-
-	;;Poner $ en la posicion 21 del buffer_entrada_usuario
-	mov BX, offset buffer_entrada_usuario + 16
-	;;
-	mov AL, "$"
-	mov [BX], AL
-
-	;;Abrir el archivo de Puntajes
-	mov AH, 3dh
-	mov AL, 00h ;Solo lectura
-	mov DX, offset nombre_archivo_puntajes
-	int 21h
-	;error de apertura
-	;jc ERROR_APERTURA
-
-	mov handle_puntajes, AX
-
-	;;Leer los Puntajes
-;;Leer los Usuario y verificar que no exista
-LEER_USUARIO_PUNTAJE:
-	;;leer usuario
-	mov AH, 3fh
-	mov BX,	handle_puntajes
-	mov CX, 1Dh ;;se lee toda la estructura
-	mov DX, offset usuario_puntaje
-	int 21h
-	;;error de lectura
-	;jc ERROR_LECTURA
-	cmp AX, 00h
-	je TERMINAR_LECTURA
-	mov CX, 0014h
-	mov SI, offset usuario_puntaje
-	mov DI, offset [buffer_entrada_usuario + 2]
-LOOP_COMPARAR_USUARIO_PUNTAJE:
-	mov AL, [SI]
-	cmp AL, [DI]
-	jne LEER_USUARIO_PUNTAJE
-	inc SI
-	inc DI
-	loop LOOP_COMPARAR_USUARIO_PUNTAJE
-	;;si llega aqui es porque se encontro el usuario
-	;;se imprime el usuario
-	mov DX, offset usuario_puntaje
-	mov AH, 09h
-	int 21h
-	;convertir puntaje_usuario en cadena y guardar el cadena_puntaje
-	mov AX, puntaje_usuario
-	mov DI, offset cadena_puntaje
-	mov CX, 0005h
-	call numAstr
-	;convertir tiempo a cadena
-	mov AX, hora_partida_puntaje
-	mov DI, offset cadena_hora_puntaje
-	mov CX, 0002h
-	call numAstr
-	mov AX, minuto_partida_puntaje
-	mov DI, offset cadena_minuto_puntaje
-	mov CX, 0002h
-	call numAstr
-	mov AX, segundo_partida_puntaje
-	mov DI, offset cadena_segundo_puntaje
-	mov CX, 0002h
-	call numAstr
-	;imprimir cadena_puntaje
-	mov DX, offset puntos_y_tiempo
-	mov AH, 09h
-	int 21h
-	;;imprimir caracter de salto de linea
-	mov DL, 0ah
-	mov AH, 02h
-	int 21h
-	jmp LEER_USUARIO_PUNTAJE
-
-TERMINAR_LECTURA:
-	;;cerrar archivo
-	mov BX, handle_puntajes
-	mov AH, 3eh
-	int 21h
-
-	;;esperar a presionar una tecla
-	mov AH, 01h
-	int 21h
-
-	;;Quitar $ en la posicion 21 del buffer_entrada_usuario
-	mov BX, offset buffer_entrada_usuario + 16
-	;;
-	mov AL, 00
-	mov [BX], AL
-
-	jmp MENU
-
-CONFIG_JUEGO:
-	;;reiniciar variables juego
-	mov vidas, 03h
-	mov punteo_actual, 0000h
-	mov conthora, 00h
-	mov contminuto, 00h
-	mov contsegundo, 00h
-	mov semilla_random, 01h
-
-	;;Guardar Centencimas Base
-	mov AH, 2ch
-	int 21
-	;DL -> centecimas
-	mov tiempo_base_velocidad_lenta, DL
-	mov tiempo_base_velocidad_media, DL
-	mov tiempo_base_velocidad_rapida, DL
-
-	;Agrgar A mapa tablero Base del juego
-	call TABLERO_BASE
-
-	;Posicionar Vehiculos en el mapa
-	call POSICIONAR_VEHICULOS	
-
-	;Posicion Inicial Jugador
-	mov fila_jugador, 17h
-	mov columna_jugador, 13h
-
-JUEGO:
-	;;se limpia la pantalla
-	call limpiar_pantalla
-
-	;;imprimir usuario
-	call imprimir_usuario_footer
-
-	;;imprimir fecha
-	call imprimir_fechahora_footer
-
-CICLO_JUEGO:
-	;;se imprime el jugador 
-	call MOVER_JUGADOR
-
-	;Pinta la Pantalla
-	call pintar_mapa
-
-	;;Verificar vidas -> Game Over
-	cmp vidas, 00h
-	je GAME_OVER
-
-	;;Actualizar Movimientos Vehiculos
-	;;col 0 o 27
-	;;random de la fila 2 a 16
-	call MOVER_VEHICULOS
-
-	;;Actualizar Contadores del Cronometro
-	call ACTUALIZAR_CRONOMETRO
-
-	;;Actualizar Cronometros
-	call imprimir_tiempo
-
-	;;Verificar Colicion
-		;;Si Pierde Las 3 Vidas se Termina el Juego
-
-	;;Actualizar Vidas
-	call imprimir_vidas
-
-	;;Verificar Suma Punteo
-
-	;;Actualizar Punteo
-	call imprimir_cadena_punteo
-
-	;;Verificar si se presiono tecla
-		;;Actualizar Movimiento
-		;;Menu Pausa
-	call DETECTAR_TECLA
-
-	jmp CICLO_JUEGO
-;
-GAME_OVER:
-	call limpiar_pantalla
-	call ALMACENAR_PUNTAJE
-	call imprimir_gameover
-	jmp MENU
-    ;jmp FINAL_PROGRAMA
-
-
-;;imprimir lista_puntajes
-IMPRIMIR_LISTA_PUNTAJES:
-	;;Limpiar Pantalla
-	call limpiar_pantalla
-	;;Posicionar Cursos 0,0 e imprimir titulo de Ordenamiento
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 00h ;;fila
-	mov DL, 00h	;;columna
-	int 10h
-	;
-	mov DX, offset cadena_titulo_ordenamiento
-	mov AH, 09h
-	int 21h
-	;
-	cmp cantidad_puntajes_leidos, 14h
-	jg MAX_20
-	mov CH, 00h
-	mov CL, cantidad_puntajes_leidos
-	jmp SIGUE_IMPRIMIR_PUNTAJES
-MAX_20:
-	mov CH, 00h
-	mov CL, 14h
-SIGUE_IMPRIMIR_PUNTAJES:
-	mov offset_impresion_puntajes, offset lista_puntajes
-	mov count_filas_puntajes, 02h
-IMPRIMIR_PUNTAJES:
-	push CX
-	;Posicionar cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, count_filas_puntajes ;;fila
-	mov DL, 01h ;;columna
-	int 10h
-	;;Imprimir Usuario
-	mov DX, offset_impresion_puntajes
-	mov AH, 09h
-	int 21h
-	;;Imprimir Puntaje
-	add offset_impresion_puntajes, 0015h
-	mov SI, offset_impresion_puntajes
-	mov AH, [SI+1]
-	mov AL, [SI]
-	mov DI, offset cadena_puntaje
-	mov CX, 0005h
-	call numAstr
-	add offset_impresion_puntajes, 0002h
-	mov SI, offset_impresion_puntajes
-	mov AH, [SI+1]
-	mov AL, [SI]
-	mov DI, offset cadena_hora_puntaje
-	mov CX, 0002h
-	call numAstr
-	add offset_impresion_puntajes, 0002h
-	mov SI, offset_impresion_puntajes
-	mov AH, [SI+1]
-	mov AL, [SI]
-	mov DI, offset cadena_minuto_puntaje
-	mov CX, 0002h
-	call numAstr
-	add offset_impresion_puntajes, 0002h
-	mov SI, offset_impresion_puntajes
-	mov AH, [SI+1]
-	mov AL, [SI]
-	mov DI, offset cadena_segundo_puntaje
-	mov CX, 0002h
-	call numAstr
-	add offset_impresion_puntajes, 0002h
-	;;Imprimir Tiempo
-	mov DX, offset puntos_y_tiempo
-	mov AH, 09h
-	int 21h
-	;;Imprimir Salto de Linea
-	;mov DL, 0ah
-	;mov AH, 02h
-	;int 21h
-	;
-	inc count_filas_puntajes
-	pop CX
-	dec CX
-	cmp CX, 00h
-	jne IMPRIMIR_PUNTAJES
-	ret
-
-ALMACENAR_PUNTAJE:
-	;Abrir el archivo de Puntajes
-	mov AH, 3dh
-	mov AL, 02h ;Solo Escribir
-	mov DX, offset nombre_archivo_puntajes
-	int 21h
-	;error de apertura
-	;jc ERROR_APERTURA
-	mov handle_puntajes, AX
-
-	;Mover el puntero al final del archivo
-	mov AL, 02h
-	mov AH, 42h
-	mov BX, handle_puntajes
-	mov CX, 0000h
-	mov DX, 0000h
-	int 21h
-
-	;jc ERROR_APERTURA
-
-	;;Quitar $ justo al final del nombre del usuario
-	mov BX, offset buffer_entrada_usuario
-	mov CL, [BX + 1]
-	mov CH, 00
-	;;
-	add BX, 02h
-	;;
-	add BX, CX
-	;;
-	mov AL, 00
-	mov [BX], AL
-
-	;;Poner $ en la posicion 21 del buffer_entrada_usuario
-	mov BX, offset buffer_entrada_usuario + 16
-	;;
-	mov AL, "$"
-	mov [BX], AL
-
-	;Escribir en el archivo el nuevo puntaje
-	;Escribir Usuario desde buffer_entrada_usuario
-	mov AH, 40h
-	mov BX, handle_puntajes
-	mov CX, 15h
-	mov DX, offset buffer_entrada_usuario + 2
-	int 21h
-
-	;Escribir Punteo desde punteo_actual
-	mov AH, 40h
-	mov BX, handle_puntajes
-	mov CX, 02h
-	mov DX, offset [punteo_actual]
-	int 21h
-
-	;Escribir Tiempo desde conthora contminuto y contsegundo
-	mov AH, 40h
-	mov BX, handle_puntajes
-	mov CX, 06h
-	mov DX, offset [conthora]
-	int 21h
-
-	;Cerrar el archivo
-	mov BX, handle_puntajes
-	mov AH, 3eh
-	int 21h
-
-	;;Quitar $ en la posicion 21 del buffer_entrada_usuario
-	mov BX, offset buffer_entrada_usuario + 16
-	;;
-	mov AL, 00
-	mov [BX], AL
-
-	ret
-
-ACTUALIZAR_FECHA_HORA:
-	;;Se obtiene la fecha 
-	mov AH, 2ah
-	int 21h
-	;;dia
-	mov BH, 00
-	mov BL, DL
-	mov dia_numero, BX
-	;;mes
-	mov BH, 00
-	mov BL, DH
-	mov mes_numero, BX
-	;;año
-	mov ahno_numero, CX
-
-	;;Se obtiene la hora
-	mov AH, 2ch
-	int 21h
-
-	;;hora
-	mov BH, 00
-	mov BL, CH
-	mov hora_numero, BX
-	;;minutos
-	mov BH, 00
-	mov BL, CL
-	mov minutos_numero, BX
-	;;segundos
-	mov BH, 00
-	mov BL, DH
-	mov segundos_numero, BX
-	;
-	ret
-
-
-;; Actualizar Cronometro
-ACTUALIZAR_CRONOMETRO:
-	;;Se obtiene la hora
-	mov AH, 2ch
-	int 21h
-
-	;;segundos
-	mov DL, DH
-	mov DH, 00h
-	cmp segundo_ant, DX
-	je FINAL_CRONOMETRO
-	mov segundo_ant, DX
-	;;Funcion Incrementar Tiempo
-	call INCREMENTAR_CRONOMETRO
-FINAL_CRONOMETRO:
-	ret
-
-
-;; Delay Sin Parar El Programa
-;; Entrada : DL -> Tiempo Base
-;			 DH -> Tiempo de Espera
-;			 DI -> direccion del tiempo base
-;; Salida : bandera_tiempo = 0 -> no Paso Tiempo de Espera(DH) | 1 -> Paso Tiempo de Espera(DH)
-DELAY:
-	push DX
-	mov AH, 2ch
-	int 21h
-	mov tiempo_actual, DL
-	mov CL, DL ;;Copia Tiempo Actual
-	pop DX
-	cmp tiempo_actual, DL
-	jae RESTA
-	add tiempo_actual, 64
-RESTA:
-	sub tiempo_actual, DL
-	cmp tiempo_actual, DH
-	jae SI_PASO
-	mov bandera_tiempo, 00h
-	mov [DI], DL
-	jmp FINAL_DELAY
-SI_PASO:
-	mov bandera_tiempo, 01h
-	mov [DI], CL
-FINAL_DELAY:
-	ret
-;; 
-MOVER_JUGADOR:
-	;;Colocar en mapa
-	;;Entrada: AL -> columna
-	;;         AH -> fila
-	;;         BL -> valor a colocar
-	mov AL, columna_jugador
-	mov AH, fila_jugador
-
-	cmp fila_jugador, 01h
-	je SUMAR_PUNTEO
-	cmp fila_jugador, 17h
-	je REEMPLAZAR_ACERA_JUGADOR
-	mov BL, JUGADOR_CARRIL
-	call COLOCAR_EN_MAPA
-	jmp retorno_mover_jugador
-SUMAR_PUNTEO:
-	cmp vidas, 03h
-	je SUMAR_PUNTEO_3
-	cmp vidas, 02h
-	je SUMAR_PUNTEO_2
-	cmp vidas, 01h
-	je SUMAR_PUNTEO_1
-SUMAR_PUNTEO_3:
-	add punteo_actual, 0064h ;Sumar 100
-	jmp SEGUIR_SUMA_PUNTEO
-SUMAR_PUNTEO_2:
-	add punteo_actual, 0032h ;Sumar 50
-	jmp SEGUIR_SUMA_PUNTEO
-SUMAR_PUNTEO_1:
-	add punteo_actual, 0019h ;Sumar 25
-SEGUIR_SUMA_PUNTEO:
-	mov fila_jugador, 17h
-	mov columna_jugador, 13h
-	mov AL, columna_jugador
-	mov AH, fila_jugador
-	mov BL, JUGADOR_ACERA
-	call COLOCAR_EN_MAPA
-	jmp retorno_mover_jugador 
-REEMPLAZAR_ACERA_JUGADOR:
-	mov BL, JUGADOR_ACERA
-	call COLOCAR_EN_MAPA
-retorno_mover_jugador:
-	ret
-
-DETECTAR_TECLA:
-
-	mov AH, 01h 
-	int 16h
-
-	jz FIN_DETECTAR_TECLA
-	mov AL, columna_jugador
-	mov AH, fila_jugador
-	cmp fila_jugador, 01h
-
-	je PINTAR_ACERA_JUGADOR
-	cmp fila_jugador, 17h
-	je PINTAR_ACERA_JUGADOR
-	mov BL, CARRIL
-
-	call COLOCAR_EN_MAPA
-	jmp MOVIMIENTO
-
-PINTAR_ACERA_JUGADOR:
-
-	mov BL, ACERA
-	call COLOCAR_EN_MAPA
-
-MOVIMIENTO:
-
-	mov AH, 00h
-	int 16h
-
-
-	cmp AH, 48h
-	je MOVER_ARRIBA	
-
-	cmp AH, 50h
-	je MOVER_ABAJO
-
-	cmp AH, 4dh
-	je MOVER_DERECHA
-
-	cmp AH, 4bh
-	je MOVER_IZQUIERDA
-
-	cmp AH, 01h
-	je PAUSA_JUEGO
-
-	jmp FIN_DETECTAR_TECLA
-
-MOVER_ARRIBA:
-	cmp fila_jugador, 02h
-	jb FIN_DETECTAR_TECLA
-	dec fila_jugador
-	mov AL, columna_jugador
-	mov AH, fila_jugador
-	call OBTENER_DE_MAPA
-	cmp BL, 04h
-	je SIGUE_NORMAL_ARRIBA
-	cmp BL, 03h
-	je SIGUE_NORMAL_ARRIBA
-	jmp PERDER_CHOQUE
-SIGUE_NORMAL_ARRIBA:
-	jmp FIN_DETECTAR_TECLA
-MOVER_ABAJO:
-	cmp fila_jugador, 16h
-	ja FIN_DETECTAR_TECLA
-	inc fila_jugador
-	mov AL, columna_jugador
-	mov AH, fila_jugador
-	call OBTENER_DE_MAPA
-	cmp BL, 04h
-	je SIGUE_NORMAL_ABAJO
-	cmp BL, 03h
-	je SIGUE_NORMAL_ABAJO
-	jmp PERDER_CHOQUE
-SIGUE_NORMAL_ABAJO:
-	jmp FIN_DETECTAR_TECLA
-MOVER_DERECHA:
-	cmp columna_jugador, 26h
-	ja FIN_DETECTAR_TECLA
-	inc columna_jugador
-	mov AL, columna_jugador
-	mov AH, fila_jugador
-	call OBTENER_DE_MAPA
-	cmp BL, 04h
-	je SIGUE_NORMAL_DERECHA
-	cmp BL, 03h
-	je SIGUE_NORMAL_DERECHA
-	jmp PERDER_CHOQUE
-SIGUE_NORMAL_DERECHA:
-	jmp FIN_DETECTAR_TECLA
-MOVER_IZQUIERDA:
-	cmp columna_jugador, 01h
-	jb FIN_DETECTAR_TECLA
-	dec columna_jugador
-	mov AL, columna_jugador
-	mov AH, fila_jugador
-	call OBTENER_DE_MAPA
-	cmp BL, 04h
-	je SIGUE_NORMAL_IZQUIERDA
-	cmp BL, 03h
-	je SIGUE_NORMAL_IZQUIERDA
-	jmp PERDER_CHOQUE
-SIGUE_NORMAL_IZQUIERDA:
-	jmp FIN_DETECTAR_TECLA
-PAUSA_JUEGO:
-	call limpiar_pantalla
-ciclo_pausa:
-	;;posicionar cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 01h
-	mov DL, 00h
-	int 10h
-	;;imprimir cadena_menu_pause
-	mov DX, offset cadena_menu_pause
-	mov AH, 09h
-	int 21h
-
-	;;se lee la tecla presionada
-	mov AH, 00h
-	int 16h
-
-	;;se compara la tecla presionada
-	cmp AH, 3bh ;Continuar
-	je JUEGO 
-	cmp AH, 3ch ;Menu
-	je MENU
-	jmp ciclo_pausa
-PERDER_CHOQUE:
-	dec vidas
-	mov fila_jugador, 17h
-	mov columna_jugador, 13h
-FIN_DETECTAR_TECLA:
-	ret
-
-;; cada fila tiene -> 27h columnas
-;; max 16h columnas  
-MOVER_VEHICULOS:
-	mov fila_mapa, 02h
-	mov columna_mapa, 00h
-ciclo_fila_mov_vehiculos:
-	;;se verifica el final de las filas
-	cmp fila_mapa, 16h
-	ja retorno_mov_vehiculos
-
-ciclo_col_mov_vehiculos:
-	cmp columna_mapa, 27h
-	ja siguiente_fila_mov_vehiculos
-	;; se utiliza obtener mapa y se verifica el objeto
-	;; obtener_de_mapa -
-	;; ENTRADA:
-	;;  AL -> x del elemento columna
-	;;  AH -> y del elemento fila
-	;; SALIDA:
-	;;  BL -> código del elemento
-	mov AL, columna_mapa
-	mov AH, fila_mapa
-	push AX
-	call OBTENER_DE_MAPA
-	pop AX
-	;;BL ESTA EL numero del OBJETO
-	;;se verifica si es un vehiculo que se mueve a la derecha
-	;; 05, 06
-	cmp BL, 05
-	je MOV_DERECHA_OBJ
-	cmp BL, 06
-	je MOV_DERECHA_OBJ
-	;;se verifica si es un vehiculo que se mueve a la izquierda
-	;; 07, 08
-	cmp BL, 07
-	je MOV_IZQUIERDA_OBJ
-	cmp BL, 08
-	je MOV_IZQUIERDA_OBJ
-	;;se verifica si es un camion que se mueve a la derecha
-	;; 09
-	cmp BL, 09
-	je MOV_DERECHA_CAMION
-	jmp CONTINUE_COL_MOV_VEHICULOS
-
-MOV_DERECHA_OBJ:
-	push AX
-	push CX
-	push DX
-	push DI
-	;
-	mov DL, tiempo_base_velocidad_media
-	mov DH, 1Eh
-	mov DI, offset tiempo_base_velocidad_media_aux
-	call DELAY
-	;
-	pop DI
-	pop DX
-	pop CX
-	pop AX
-	cmp bandera_tiempo, 00h
-	je siguiente_fila_mov_vehiculos
-	call MOVER_DERECHA_OBJETO
-	;call MOVER_DERECHA_OBJETO
-	jmp siguiente_fila_mov_vehiculos
-MOV_IZQUIERDA_OBJ:
-	push AX
-	push CX
-	push DX
-	push DI
-	;
-	mov DL, tiempo_base_velocidad_rapida
-	mov DH, 0ah
-	mov DI, offset tiempo_base_velocidad_rapida_aux
-	call DELAY
-	;
-	pop DI
-	pop DX
-	pop CX
-	pop AX
-	cmp bandera_tiempo, 00h
-	je siguiente_fila_mov_vehiculos
-	call MOVER_IZQUIERDA_OBJETO
-	jmp siguiente_fila_mov_vehiculos
-MOV_DERECHA_CAMION:
-	push AX
-	push CX
-	push DX
-	push DI
-	;
-	mov DL, tiempo_base_velocidad_lenta
-	mov DH, 5Ah
-	mov DI, offset tiempo_base_velocidad_lenta_aux
-	call DELAY
-	;
-	pop DI
-	pop DX
-	pop CX
-	pop AX
-	cmp bandera_tiempo, 00h
-	je siguiente_fila_mov_vehiculos
-	call MOVER_DERECHA_CAMION
-	jmp siguiente_fila_mov_vehiculos
-CONTINUE_COL_MOV_VEHICULOS:
-	inc columna_mapa
-	jmp ciclo_col_mov_vehiculos
-
-siguiente_fila_mov_vehiculos:
-	inc fila_mapa
-	mov columna_mapa, 00h
-	jmp ciclo_fila_mov_vehiculos
-
-retorno_mov_vehiculos:
-	push AX
-	mov AL, tiempo_base_velocidad_lenta_aux
-	mov tiempo_base_velocidad_lenta, AL
-	mov AL, tiempo_base_velocidad_media_aux
-	mov tiempo_base_velocidad_media, AL
-	mov AL, tiempo_base_velocidad_rapida_aux
-	mov tiempo_base_velocidad_rapida, AL
-	pop AX
-	ret
-
-;;entrada: AL -> columna
-;;         AH -> fila
-;;         BL -> objeto
-MOVER_DERECHA_OBJETO:
-	;;se dibuja carril en la posicion actual
-	mov BH, 00
-	push BX
-	push AX
-	mov BL, CARRIL
-	call COLOCAR_EN_MAPA
-	pop AX
-	pop BX
-	;;incremento una columna
-	inc AL
-
-	cmp AL, 27h
-	jbe INSERTAR_OBJETO_DERECHA
-	mov AL, 00h
-INSERTAR_OBJETO_DERECHA:
-	push BX
-	push AX
-	call OBTENER_DE_MAPA
-	mov CL, BL
-	;;verificar si es 
-	pop AX
-	pop BX
-	cmp CL, 01h
-	jne NOQUITAR_VIDA
-	dec vidas
-	mov fila_jugador, 17h
-	mov columna_jugador, 13h
-NOQUITAR_VIDA:
-	;;COLOCAMOS en mapa
-	push BX
-	push AX
-	call COLOCAR_EN_MAPA
-	pop AX
-	pop BX
-	ret
-
-;;entrada: AL -> columna
-;;         AH -> fila
-;;         BL -> objeto
-;; == 09| 10
-MOVER_DERECHA_CAMION:
-	;; se dibuja carril en la posicion actual
-	mov BH, 00
-	push BX
-	push AX ;;posicion camion inicio
-	mov BL, CARRIL
-	call COLOCAR_EN_MAPA
-	pop AX ;;posicion camion inicio
-	pop BX
-	;;incremento una columna
-	inc AL 	
-	cmp AL, 27h
-	jb INSERTAR_TODO_CAMION
-	je INSERTAR_SOLO_INICIO_CAMION
-	mov AL, 00h
-	jmp INSERTAR_TODO_CAMION
-
-INSERTAR_SOLO_INICIO_CAMION:
-	mov BL, CAMIONINI
-	call COLOCAR_EN_MAPA
-	jmp RETORNO_MOV_CAMION
-INSERTAR_TODO_CAMION:
-	push BX
-	push AX
-	mov BL, CAMIONINI
-	call COLOCAR_EN_MAPA
-	pop AX
-	pop BX
-	inc AL
-	push BX
-	push AX
-	call OBTENER_DE_MAPA
-	mov CL, BL
-	pop AX
-	pop BX
-	cmp CL, 01h
-	jne NOQUITAR_VIDACAMION
-	dec vidas
-	mov fila_jugador, 17h
-	mov columna_jugador, 13h
-NOQUITAR_VIDACAMION:
-	mov BL, CAMIONFIN
-	call COLOCAR_EN_MAPA
-RETORNO_MOV_CAMION:
-	ret
-
-;;entrada: AL -> columna
-;;         AH -> fila
-;;         BL -> objeto
-MOVER_IZQUIERDA_OBJETO:
-	;;se dibuja carril en la posicion actual
-	mov BH, 00
-	push BX
-	push AX
-	mov BL, CARRIL
-	call COLOCAR_EN_MAPA
-	pop AX
-	pop BX
-	;;incremento una columna
-	cmp AL, 00h
-	je MOVER2
-	dec AL
-	jmp INSERTAR_OBJETO_IZQUIERDA
-MOVER2:
-	mov AL, 27h
-INSERTAR_OBJETO_IZQUIERDA:
-	push BX
-	push AX
-	call OBTENER_DE_MAPA
-	mov CL, BL
-	pop AX
-	pop BX
-	cmp CL, 01h
-	jne NOQUITAR_VIDAIZQ
-	dec vidas
-	mov fila_jugador, 17h
-	mov columna_jugador, 13h
-NOQUITAR_VIDAIZQ:
-	push BX
-	push AX
-	call COLOCAR_EN_MAPA
-	pop AX
-	pop BX
-	ret
 	
-;;posiciona los vehiculos en el tablero
-POSICIONAR_VEHICULOS:
-	mov cont_fila, 02h
-	;;random de vehiculos rango 5 a 9
-ciclo_colocar_vehiculos:
-	mov BL, 05h
-	mov BH, 09h
-	call NUMERO_RANDOM
-	mov carro_random, AH ;;se guarda el random en carro_random
+### 68. POR_PUNTAJE
+Permite seleccionar el ordenamiento por puntaje
 
-	;;random para posicionarlos en las columnas
-	mov BL, 00h
-	mov BH, 26h
-	call NUMERO_RANDOM
-	;;posicion fila en AH
-	mov AL, AH			;random columna
-	mov AH, cont_fila	;cada fila
-	push AX
-	mov BL, carro_random
-	call COLOCAR_EN_MAPA
+    POR_PUNTAJE:
 
-	cmp BL, 09h	
-	jne NO_CAMION
-	pop AX
-	push AX
-	inc AL
-	mov BL, CAMIONFIN
-	call COLOCAR_EN_MAPA
+        mov SI, offset_posicion_puntajes
+        mov AH, [SI + 16h] 
+        mov AL, [SI + 15h]
+        mov BH, [SI + 33h] 
+        mov BL, [SI + 32h]
+        jmp ORIENTACION
+
+### 69. POR_TIEMPO
+Permite seleccionar el ordenamiento por tiempo
+
+    POR_TIEMPO:
+        mov SI, offset_posicion_puntajes
+        mov AH, [SI + 18h] ;hora 1
+        mov AL, [SI + 17h]
+        mov CX, 0E10h ;multiplicador de 3600
+        mul CX 
+        mov tiempo1_puntaje, AX
+        mov AH, [SI + 1Ah] ;minuto 1
+        mov AL, [SI + 19h]
+        mov CX, 3Ch ;multiplicador de 60
+        mul CX 
+        add tiempo1_puntaje, AX
+        mov AH, [SI + 1Ch] ;segundo 1
+        mov AL, [SI + 1Bh]
+        add tiempo1_puntaje, AX
+        
+        mov AH, [SI + 35h] ;hora 2
+        mov AL, [SI + 34h]
+        mov CX, 0E10h ;multiplicador de 3600
+        mul CX
+        mov tiempo2_puntaje, AX
+        mov AH, [SI + 37h] ;minuto 2
+        mov AL, [SI + 36h]
+        mov CX, 3Ch ;multiplicador de 60
+        mul CX 
+        add tiempo2_puntaje, AX
+        mov AH, [SI + 39h] ;segundo 2
+        mov AL, [SI + 38h]
+        add tiempo2_puntaje, AX
+        
+        mov AX, tiempo1_puntaje
+        mov BX, tiempo2_puntaje
+
+### 70. ORIENTACION
+Permite comparar que tipo de orientacion fue seleccionada
 	
-NO_CAMION:
-	pop AX
-	inc cont_fila
-	cmp cont_fila, 16h
-	jbe ciclo_colocar_vehiculos
-	ret
+    ORIENTACION:
+        cmp orientacion_puntaje, '1'
+        je ASCENDENTE
+        cmp orientacion_puntaje, '2'
+        je DESCENDENTE
 
-;; BL -> limite inferior
-;; BH -> limite superior
-;; SALIDA:
-;;  AH -> número aleatorio
+### 71. ASCENDENTE
+Compara de forma ascendente los valores
 
-;; 48%16 = 
-NUMERO_RANDOM:
-	mov AH, 00h
-	int 1ah
-	;;en DX tenemos el número aleatorio
-	mov AX, DX ;;numero random
-	mul semilla_random
-	
-	ror AX, 1
-	ror AX, 1
-	ror AX, 1
-	and AX, 03ffh
+    ASCENDENTE:
+        cmp AX, BX
+        jg INTERCAMBIO
+        jmp FINAL_LOOP_ORDENAMIENTO
 
-	mov semilla_random, AX
-	inc semilla_random
-	;;segun los limites
-	sub BH, BL ;-> 16, 2 = 14 -> BH ->14
-	inc BH ;-> 15
-	;;	
-	div BH
+### 72. DESCENDENTE
+Compara de forma descendente los valores
 
-	;;ahora en AH -> se encuentra residuo
-	add AH, BL
+    DESCENDENTE:        
+        cmp BX, AX
+        jg INTERCAMBIO
+        jmp FINAL_LOOP_ORDENAMIENTO
 
-	;;AH -> NUMERO RANDOM
-	ret
+### 73. INTERCAMBIO
+Permite intercambiar de posicion los valores para el ordenamiento
 
+    INTERCAMBIO:
+        mov CX, 001Dh
+        mov DI, SI
 
-INCREMENTAR_CRONOMETRO:
-	inc contsegundo
-	cmp contsegundo, 3ch
-	jne FIN_CRONOMETRO
-	mov contsegundo, 00h
-	inc contminuto
-	cmp contminuto, 3ch
-	jne FIN_CRONOMETRO
-	mov contminuto, 00h
-	inc conthora
-FIN_CRONOMETRO:
-	ret
+### 74. LOOP_INTERCAMBIAR_USUARIOS
+Permite intercambiar usuarios
 
-TABLERO_BASE:
-	;; Y filas 1 -> 17
-	;; X columnas 0 -> 27
-	mov fila_tablero, 01h
-	mov col_tablero, 00h
-IMPRIMIR_INICIO_BANQUETA:
-	mov AL, col_tablero  	;;columna
-	mov AH, fila_tablero		;;fila
-	mov BL, ACERA
-	call COLOCAR_EN_MAPA
-	inc col_tablero
-	cmp col_tablero, 27
-	jbe IMPRIMIR_INICIO_BANQUETA
+    LOOP_INTERCAMBIAR_USUARIOS:
+        mov AH, [DI + 1Dh]
+        mov AL, [DI]
+        mov [DI + 1Dh], AL
+        mov [DI], AH
+        inc DI
+        loop LOOP_INTERCAMBIAR_USUARIOS
+        
+        inc count_ordenados
 
-	mov fila_tablero, 17h
-	mov col_tablero, 00h
-IMPRIMIR_FINAL_BANQUETA:
-	mov AL, col_tablero  	;;columna
-	mov AH, fila_tablero		;;fila
-	mov BL, ACERA
-	call COLOCAR_EN_MAPA
-	inc col_tablero
-	cmp col_tablero, 27
-	jbe IMPRIMIR_FINAL_BANQUETA
+### 75. FINAL_LOOP_ORDENAMIENTO
+Termina el loop del ordenamiento
 
-	mov fila_tablero, 02h
-	mov col_tablero, 00h
-IMPRIMIR_CARRILES:
-	mov AL , col_tablero
-	mov AH, fila_tablero
-	mov BL, CARRIL
-	call COLOCAR_EN_MAPA
-	inc col_tablero
-	cmp col_tablero, 27
-	jbe IMPRIMIR_CARRILES
-	mov col_tablero, 00h
-	inc fila_tablero
-	cmp fila_tablero, 16
-	jbe IMPRIMIR_CARRILES
-	ret
+    FINAL_LOOP_ORDENAMIENTO:
+        add offset_posicion_puntajes, 001Dh
+        pop CX
+        dec CX
+        cmp CX, 00h
+        jne LOOP_ORDENAMIENTO
+        ;
+        cmp count_ordenados, 00h
+        jne ORDENAMIENTO_PUNTAJES
 
-;;Colocar en mapa
-;;Entrada: AL -> columna
-;;         AH -> fila
-;;         BL -> valor a colocar
-COLOCAR_EN_MAPA:
-	push AX    ;; guardar las posiciones en la pila
-	mov AL, AH
-	mov AH, 00
-	mov DI, AX
-	mov AX, 28 ;; tamaño máximo de x
-	mul DI
-	;; DX-AX resultado de la multiplicación
-	pop DX
-	mov DH, 00
-	add AX, DX  ;; AX = 28*y + x
-	;; índice hacia la memoria del pixel
-	mov SI, offset mapa_tablero
-	add SI, AX
-	mov [SI], BL
-	ret
+### 76. FINAL_ORDENAMIENTO
+Termina el ordenamiento
 
-;; obtener_de_mapa -
-;; ENTRADA:
-;;  AL -> x COLUMNA del elemento
-;;  AH -> y FILA del elemento
-;; SALIDA:
-;;  BL -> código del elemento
-OBTENER_DE_MAPA:
-	push AX    ;; guardar las posiciones en la pila
-	mov AL, AH
-	mov AH, 00
-	mov DI, AX
-	mov AX, 28 ;; tamaño máximo de x
-	mul DI
-	;; DX-AX resultado de la multiplicación
-	pop DX
-	mov DH, 00
-	add AX, DX  ;; AX = 28*y + x
-	;; índice hacia la memoria del pixel
-	mov SI, offset mapa_tablero
-	add SI, AX
-	mov BL, [SI]
-	ret
+    FINAL_ORDENAMIENTO:
+        cmp bandera_solo_ordenamiento, 01h
+        je REGREAR_REPORTE_SISTEMA
+        
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 18h ;;fila
+        mov DL, 00h ;;columna
+        int 10h
+       
+        mov DX, offset cadena_fin_ordenamiento
+        mov AH, 09h
+        int 21h
+        
+        mov AH, 3Ch
+        mov CX, 0000h
+        mov DX, offset nombre_archivo_ordenamiento
+        int 21h
+       
+        mov handle_ordenamiento, AX
 
-;;sprites a pintar
-;;pintar jugador acer
-pintar_jugador_acera:
-		mov BX, offset sprite_jugador_acera
-		jmp pintar_sprite_en_posicion
-;;pintar jugador carril
-pintar_jugador_carril:
-		mov BX, offset sprite_jugador_carril
-		jmp pintar_sprite_en_posicion
-;;pintar acera
-pintar_acera:
-		mov BX, offset sprite_banqueta
-		jmp pintar_sprite_en_posicion
-;;pintar carril
-pintar_carril:
-		mov BX, offset sprite_carril
-		jmp pintar_sprite_en_posicion
-;;pintar carro morado derecha
-pintar_carro_morado_derecha:
-		mov BX, offset sprite_carro_morado_derecha
-		jmp pintar_sprite_en_posicion
-;;pintar carro azul derecha
-pintar_carro_azul_derecha:
-		mov BX, offset sprite_carro_azul_derecha
-		jmp pintar_sprite_en_posicion
-;;pintar carro verde izquierda
-pintar_carro_verde_izq:
-		mov BX, offset sprite_carro_verde_izq
-		jmp pintar_sprite_en_posicion
-;;pintar carro amarillo izquierda
-pintar_carro_amarillo_izq:
-		mov BX, offset sprite_carro_amarillo_izq
-		jmp pintar_sprite_en_posicion
-;;pintar camion blanco inicio
-pintar_camion_blanco_inicio:
-		mov BX, offset sprite_inicio_camion_blanco
-		jmp pintar_sprite_en_posicion
-;;pintar camion blanco fin
-pintar_camion_blanco_fin:
-		mov BX, offset sprite_fin_camion_blanco
-		jmp pintar_sprite_en_posicion
+        cmp parametro_puntaje, '1'
+        je ESCRIBIR_POR_PUNTAJE
+        cmp parametro_puntaje, '2'
+        je ESCRIBIR_POR_TIEMPO
 
-;; pintar_mapa ---------------------------------------------
-pintar_mapa:
-		mov AX, 0000
-		mov [coordenada_actual], AX
-		mov CX, 19
-ciclo_filas_mapa:
-		xchg BP, CX
-		mov CX, 28
-ciclo_columnas_mapa:
-		mov AX, [coordenada_actual]
-		call OBTENER_DE_MAPA
-		;; ============================
-		;; selección de sprite a pintar
-		;; ============================		
-		;;jugador acera
-		cmp BL, JUGADOR_ACERA
-		je pintar_jugador_acera
+### 77. CONFIG_JUEGO
+Permite crear la configuracion inicial del juego
 
-		;;jugador carril
-		cmp BL, JUGADOR_CARRIL
-		je pintar_jugador_carril
+    CONFIG_JUEGO:
+        ;;reiniciar variables juego
+        mov vidas, 03h
+        mov punteo_actual, 0000h
+        mov conthora, 00h
+        mov contminuto, 00h
+        mov contsegundo, 00h
+        mov semilla_random, 01h
 
-		;;acera
-		cmp BL, ACERA
-		je pintar_acera
+        mov AH, 2ch
+        int 21
 
-		;;carril
-		cmp BL, CARRIL
-		je pintar_carril
+        mov tiempo_base_velocidad_lenta, DL
+        mov tiempo_base_velocidad_media, DL
+        mov tiempo_base_velocidad_rapida, DL
 
-		;;carro morado a la derecha
-		cmp BL, R_CARROMORADO
-		je pintar_carro_morado_derecha
+        call TABLERO_BASE
 
-		;;carro azul a la derecha
-		cmp BL, R_CARROAZUL
-		je pintar_carro_azul_derecha
+        call POSICIONAR_VEHICULOS	
 
-		;;carro verde a la izquierda
-		cmp BL, L_CARROVERDE
-		je pintar_carro_verde_izq
+        mov fila_jugador, 17h
+        mov columna_jugador, 13h
 
-		;;carro amarillo a la izquierda
-		cmp BL, L_CARROAMARILLO
-		je pintar_carro_amarillo_izq
+### 78. JUEGO
+Permite pintar los datos visibles en la pantalla
 
-		;;camion blanco inicio
-		cmp BL, CAMIONINI
-		je pintar_camion_blanco_inicio
+    JUEGO:
+       
+        call limpiar_pantalla
 
-		;;camion blanco fin
-		cmp BL, CAMIONFIN
-		je pintar_camion_blanco_fin
+        call imprimir_usuario_footer
 
-		jmp ciclo_columnas_mapa_loop
-		;; ==============================================
-		;; definición de qué sprite pintar para cada caso
-		;; ==============================================
+        call imprimir_fechahora_footer
 
-pintar_sprite_en_posicion:
-		mov AX, [coordenada_actual]
-		mov AH, 08
-		mul AH
-		mov [x_elemento], AX
-		mov AX, [coordenada_actual]
-		mov AL, AH
-		mov AH, 08
-		mul AH
-		mov [y_elemento], AX
-		push CX
-		push BP
-		call pintar_sprite
-		pop BP
-		pop CX
-		jmp ciclo_columnas_mapa_loop
-ciclo_columnas_mapa_loop:
-		mov AX, [coordenada_actual]
-		inc AL
-		mov [coordenada_actual], AX
-		loop ciclo_columnas_mapa
-		mov AX, [coordenada_actual]
-		mov AL, 00
-		inc AH
-		mov [coordenada_actual], AX
-		xchg BP, CX
-		loop ciclo_filas_mapa
-		ret
+### 79. CICLO_JUEGO
+Inicia el ciclo que lleva todas las rutinas que componen el juego
 
-;;Imprimir Sprite 8x8
-;;Entrada : direccion_sprite -> offset del sprite
-;;          SI -> coordena fila de 00 a 18 HEX o 0 a 24 DEC
-;;          DI -> coordenada columna de 00 a 27 HEX o 0 a 39 DEC
-;;Tambien se utiliza AX,DX,CX,SI,DI, entrada_direccion se modifican
-;Salida  : Ninguna
-;; pintar_sprite - pinta el sprite en la posición especificada en memoria
-;; ENTRADA:
-;;   BX -> datos del sprite a pintar
-pintar_sprite:
-		mov SI, [x_elemento]
-		mov DI, [y_elemento]
-		xchg BP, CX
-		mov CX, 0000
-		mov CL, 08    ;; altura del jugador, 8 en este caso
-ciclo_filas:
-		xchg BP, CX
-		mov CX, 0000
-		mov CL, 08    ;; anchura del jugador, 8 en este caso
-ciclo_columnas:
-		push BX
-		push CX
-		mov CL, [BX]
-		call pintar_pixel
-		pop CX
-		pop BX
-		inc SI
-		inc BX
-		loop ciclo_columnas
-		;; terminó una fila
-		;;; incremento y
-		inc DI
-		;;; reinicio x
-		mov SI, [x_elemento]
-		xchg BP, CX
-		loop ciclo_filas
-		ret
-; pintar_pixel - pinta un pixel en una posición x, y
-;; ENTRADAS:
-;;  - SI - x
-;;  - DI - y
-;;  - CL - color 
-;; SALIDA:
+    CICLO_JUEGO:
+       
+        call MOVER_JUGADOR
 
-pintar_pixel:
-		;; DS tiene cierto valor
-		;; se preservó DS
-		push DS
-		;; se coloca la dirección del scanner del modo de video
-		mov DX, 0a000
-		mov DS, DX
-		;;
-		mov AX, 140 ;; tamaño máximo de x ;; tamaño máximo de x
-		mul DI
-		;; DX-AX resultado de la multiplicación
-		add AX, SI
-		;; índice hacia la memoria del pixel
-		mov BX, AX
-		mov [BX], CL
-		pop DS
-		ret
+        call pintar_mapa
 
+        cmp vidas, 00h
+        je GAME_OVER
 
-;Converti coordenada x,y a indice. Formula: indice = fila*N_columnas + columna
-;Entrada :  SI -> coordenada fila
-;           DI -> coordenada columna
-;           AX -> N_columnas
-;Salida  : AX -> indice de la coordenada x,y
-ROW_MAYOR: 
-    mul SI
-    add AX, DI
-    ret
+        call MOVER_VEHICULOS
 
+        call ACTUALIZAR_CRONOMETRO
 
-;; limpiar_pantalla - limpia la pantalla
-limpiar_pantalla:
-		;;Colocal Cursos en 0,0
-		mov DH, 00 ;; y fila
-		mov DL, 00 ;; x col
-		mov BH, 00
-		mov AH, 02
-		int 10h
-		mov CX, 19
-ciclo_limpiar_pantalla:
-		mov DX, offset cadena_limpiar
-		mov AH, 09
-		int 21
-		loop ciclo_limpiar_pantalla
-		ret
+        call imprimir_tiempo
+
+        call imprimir_vidas
+
+        call imprimir_cadena_punteo
+
+        call DETECTAR_TECLA
+
+        jmp CICLO_JUEGO
+    
+### 80. GAME_OVER
+Permite llamar las subrutinas que componene el fin de juego las cuales son limpiar la pantalla, almacenar el puntaje, imprimir el texto de fin de partida y volver al menu
+
+    GAME_OVER:
+        call limpiar_pantalla
+        call ALMACENAR_PUNTAJE
+        call imprimir_gameover
+        jmp MENU
+
+### 81.  IMPRIMIR_LISTA_PUNTAJES
+Inicia el proceso para imprimir la lista de puntajes
+
+    IMPRIMIR_LISTA_PUNTAJES:
+      
+        call limpiar_pantalla
+        
+        mov BH, 00h
+        mov DH, 00h ;;fila
+        mov DL, 00h	;;columna
+        int 10h
+        
+        mov DX, offset cadena_titulo_ordenamiento
+        mov AH, 09h
+        int 21h
+        cmp cantidad_puntajes_leidos, 14h
+        jg MAX_20
+        mov CH, 00h
+        mov CL, cantidad_puntajes_leidos
+        jmp SIGUE_IMPRIMIR_PUNTAJES
+
+### 82. SIGUE_IMPRIMIR_PUNTAJES
+Permite verficar si se puede continuar con la impresion de puntajes
+
+    SIGUE_IMPRIMIR_PUNTAJES:
+        mov offset_impresion_puntajes, offset lista_puntajes
+        mov count_filas_puntajes, 02h
+
+### 83. IMPRIMIR_PUNTAJES
+Muestra los puntajes en la pantalla
+
+    IMPRIMIR_PUNTAJES:
+        push CX
+     
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, count_filas_puntajes ;;fila
+        mov DL, 01h ;;columna
+        int 10h
+       
+        mov DX, offset_impresion_puntajes
+        mov AH, 09h
+        int 21h
+        
+        add offset_impresion_puntajes, 0015h
+        mov SI, offset_impresion_puntajes
+        mov AH, [SI+1]
+        mov AL, [SI]
+        mov DI, offset cadena_puntaje
+        mov CX, 0005h
+        call numAstr
+        add offset_impresion_puntajes, 0002h
+        mov SI, offset_impresion_puntajes
+        mov AH, [SI+1]
+        mov AL, [SI]
+        mov DI, offset cadena_hora_puntaje
+        mov CX, 0002h
+        call numAstr
+        add offset_impresion_puntajes, 0002h
+        mov SI, offset_impresion_puntajes
+        mov AH, [SI+1]
+        mov AL, [SI]
+        mov DI, offset cadena_minuto_puntaje
+        mov CX, 0002h
+        call numAstr
+        add offset_impresion_puntajes, 0002h
+        mov SI, offset_impresion_puntajes
+        mov AH, [SI+1]
+        mov AL, [SI]
+        mov DI, offset cadena_segundo_puntaje
+        mov CX, 0002h
+        call numAstr
+        add offset_impresion_puntajes, 0002h
+        
+        mov DX, offset puntos_y_tiempo
+        mov AH, 09h
+        int 21h
+        
+        inc count_filas_puntajes
+        pop CX
+        dec CX
+        cmp CX, 00h
+        jne IMPRIMIR_PUNTAJES
+        ret
+
+### 84. ALMACENAR_PUNTAJE
+Permite almacenar el puntae en el archivo de puntajes
+
+    ALMACENAR_PUNTAJE:
+        
+        mov AH, 3dh
+        mov AL, 02h 
+        mov DX, offset nombre_archivo_puntajes
+        int 21h
+       
+        mov handle_puntajes, AX
+
+       
+        mov AL, 02h
+        mov AH, 42h
+        mov BX, handle_puntajes
+        mov CX, 0000h
+        mov DX, 0000h
+        int 21h
+
+      
+        mov BX, offset buffer_entrada_usuario
+        mov CL, [BX + 1]
+        mov CH, 00
+        
+        add BX, 02h
+       
+        add BX, CX
+       
+        mov AL, 00
+        mov [BX], AL
+
+       
+        mov BX, offset buffer_entrada_usuario + 16
+       
+        mov AL, "$"
+        mov [BX], AL
+
+        mov AH, 40h
+        mov BX, handle_puntajes
+        mov CX, 15h
+        mov DX, offset buffer_entrada_usuario + 2
+        int 21h
+
+        mov AH, 40h
+        mov BX, handle_puntajes
+        mov CX, 02h
+        mov DX, offset [punteo_actual]
+        int 21h
+
+        mov AH, 40h
+        mov BX, handle_puntajes
+        mov CX, 06h
+        mov DX, offset [conthora]
+        int 21h
+
+        mov BX, handle_puntajes
+        mov AH, 3eh
+        int 21h
+
+        mov BX, offset buffer_entrada_usuario + 16
+      
+        mov AL, 00
+        mov [BX], AL
+
+        ret
+
+### 85. ACTUALIZAR_FECHA_HORA
+Actualiza la hora
+
+    ACTUALIZAR_FECHA_HORA:
+        ;;Se obtiene la fecha 
+        mov AH, 2ah
+        int 21h
+        ;;dia
+        mov BH, 00
+        mov BL, DL
+        mov dia_numero, BX
+        ;;mes
+        mov BH, 00
+        mov BL, DH
+        mov mes_numero, BX
+        ;;año
+        mov ahno_numero, CX
+
+        ;;Se obtiene la hora
+        mov AH, 2ch
+        int 21h
+
+        ;;hora
+        mov BH, 00
+        mov BL, CH
+        mov hora_numero, BX
+        ;;minutos
+        mov BH, 00
+        mov BL, CL
+        mov minutos_numero, BX
+        ;;segundos
+        mov BH, 00
+        mov BL, DH
+        mov segundos_numero, BX
+        ;
+        ret
+
+### 86. ACTUALIZAR_CRONOMETRO
+Permite actualizar el cronometro
+
+    ACTUALIZAR_CRONOMETRO:
+        ;;Se obtiene la hora
+        mov AH, 2ch
+        int 21h
+
+        ;;segundos
+        mov DL, DH
+        mov DH, 00h
+        cmp segundo_ant, DX
+        je FINAL_CRONOMETRO
+        mov segundo_ant, DX
+        ;;Funcion Incrementar Tiempo
+        call INCREMENTAR_CRONOMETRO
+
+### 87. FINAL_CRONOMETRO
+Retresa a la etiqueta actualizar_cronometro
+
+    FINAL_CRONOMETRO:
+        ret
+
+### 88. MOVER_JUGADOR
+Permite mover el jugador
+
+    MOVER_JUGADOR:
+
+        mov AL, columna_jugador
+        mov AH, fila_jugador
+
+        cmp fila_jugador, 01h
+        je SUMAR_PUNTEO
+        cmp fila_jugador, 17h
+        je REEMPLAZAR_ACERA_JUGADOR
+        mov BL, JUGADOR_CARRIL
+        call COLOCAR_EN_MAPA
+        jmp retorno_mover_jugador
+
+### 89. SUMAR_PUNTEO
+Permite ir sumando el punteo del jugador
+
+    SUMAR_PUNTEO:
+        cmp vidas, 03h
+        je SUMAR_PUNTEO_3
+        cmp vidas, 02h
+        je SUMAR_PUNTEO_2
+        cmp vidas, 01h
+        je SUMAR_PUNTEO_1
+    SUMAR_PUNTEO_3:
+        add punteo_actual, 0064h ;Sumar 100
+        jmp SEGUIR_SUMA_PUNTEO
+    SUMAR_PUNTEO_2:
+        add punteo_actual, 0032h ;Sumar 50
+        jmp SEGUIR_SUMA_PUNTEO
+    SUMAR_PUNTEO_1:
+        add punteo_actual, 0019h ;Sumar 25
+    SEGUIR_SUMA_PUNTEO:
+        mov fila_jugador, 17h
+        mov columna_jugador, 13h
+        mov AL, columna_jugador
+        mov AH, fila_jugador
+        mov BL, JUGADOR_ACERA
+        call COLOCAR_EN_MAPA
+        jmp retorno_mover_jugador 
+
+### 90. REEMPLAZAR_ACERA_JUGADOR
+Permite cololar el sprite del jugador con los colores de la acera
+    REEMPLAZAR_ACERA_JUGADOR:
+        mov BL, JUGADOR_ACERA
+        call COLOCAR_EN_MAPA
+    retorno_mover_jugador:
+        ret
+
+### 91. DETECTAR_TECLA
+Permite reconocer la entrada del teclado, para poder mover al jugador
+
+    DETECTAR_TECLA:
+
+        mov AH, 01h 
+        int 16h
+
+        jz FIN_DETECTAR_TECLA
+        mov AL, columna_jugador
+        mov AH, fila_jugador
+        cmp fila_jugador, 01h
+
+        je PINTAR_ACERA_JUGADOR
+        cmp fila_jugador, 17h
+        je PINTAR_ACERA_JUGADOR
+        mov BL, CARRIL
+
+        call COLOCAR_EN_MAPA
+        jmp MOVIMIENTO
+
+### 92. PINTAR_ACERA_JUGADOR
+Pinta el jugador cuando esta en la acera
+
+    PINTAR_ACERA_JUGADOR:
+
+        mov BL, ACERA
+        call COLOCAR_EN_MAPA
+
+### 93. MOVIMIENTO
+Analiza la entrada del teclado permitiendo establecer hacia que direccion se va mover el jugador, o si quiere pausar el juego
+
+    MOVIMIENTO:
+
+        mov AH, 00h
+        int 16h
+
+        cmp AH, 48h
+        je MOVER_ARRIBA	
+
+        cmp AH, 50h
+        je MOVER_ABAJO
+
+        cmp AH, 4dh
+        je MOVER_DERECHA
+
+        cmp AH, 4bh
+        je MOVER_IZQUIERDA
+
+        cmp AH, 01h
+        je PAUSA_JUEGO
+
+        jmp FIN_DETECTAR_TECLA
+
+### 94. MOVER_ARRIBA
+Mueve al jugador hacia arriba, verificando si choca o detectando en que parte del mapa se encuentra
+
+    MOVER_ARRIBA:
+        cmp fila_jugador, 02h
+        jb FIN_DETECTAR_TECLA
+        dec fila_jugador
+        mov AL, columna_jugador
+        mov AH, fila_jugador
+        call OBTENER_DE_MAPA
+        cmp BL, 04h
+        je SIGUE_NORMAL_ARRIBA
+        cmp BL, 03h
+        je SIGUE_NORMAL_ARRIBA
+        jmp PERDER_CHOQUE
+
+### 95. SIGUE_NORMAL_ARRIBA
+Retorna al ciclo del juego
+
+    SIGUE_NORMAL_ARRIBA:
+        jmp FIN_DETECTAR_TECLA
+
+### 96. MOVER_ABAJO
+Mueve al jugador hacia abajo, verificando si choca o detectando en que parte del mapa se encuentra
+
+    MOVER_ABAJO:
+        cmp fila_jugador, 16h
+        ja FIN_DETECTAR_TECLA
+        inc fila_jugador
+        mov AL, columna_jugador
+        mov AH, fila_jugador
+        call OBTENER_DE_MAPA
+        cmp BL, 04h
+        je SIGUE_NORMAL_ABAJO
+        cmp BL, 03h
+        je SIGUE_NORMAL_ABAJO
+        jmp PERDER_CHOQUE
+
+### 97. SEGUIR_NORMAL_ABAJO
+Retorna al ciclo del juego
+
+    SIGUE_NORMAL_ABAJO:
+        jmp FIN_DETECTAR_TECLA
+
+### 98. MOVER_DERECHA
+Mueve al jugador hacia la derecha, verificando si choca o detectando en que parte del mapa se encuentra
+
+    MOVER_DERECHA:
+        cmp columna_jugador, 26h
+        ja FIN_DETECTAR_TECLA
+        inc columna_jugador
+        mov AL, columna_jugador
+        mov AH, fila_jugador
+        call OBTENER_DE_MAPA
+        cmp BL, 04h
+        je SIGUE_NORMAL_DERECHA
+        cmp BL, 03h
+        je SIGUE_NORMAL_DERECHA
+        jmp PERDER_CHOQUE
+
+### 99. SIGUE_NORMAL_DERECHA
+Retorna al ciclo del juego
+
+    SIGUE_NORMAL_DERECHA:
+        jmp FIN_DETECTAR_TECLA
+
+### 100. MOVER_IZQUIERDA
+Mueve al jugador hacia la derecha, verificando si choca o detectando en que parte del mapa se encuentra
+
+    MOVER_IZQUIERDA:
+        cmp columna_jugador, 01h
+        jb FIN_DETECTAR_TECLA
+        dec columna_jugador
+        mov AL, columna_jugador
+        mov AH, fila_jugador
+        call OBTENER_DE_MAPA
+        cmp BL, 04h
+        je SIGUE_NORMAL_IZQUIERDA
+        cmp BL, 03h
+        je SIGUE_NORMAL_IZQUIERDA
+        jmp PERDER_CHOQUE
+
+### 101. SIGUE_NORMAL_IZQUIERDA
+Retorna al ciclo del juego
+
+    SIGUE_NORMAL_IZQUIERDA:
+        jmp FIN_DETECTAR_TECLA
+
+### 102. PAUSA_JUEGO
+Llama la funcion de limpiar pantalla
+
+    PAUSA_JUEGO:
+        call limpiar_pantalla
+
+### 103. ciclo_pausa
+Llama al ciclo de la pausa
+
+    ciclo_pausa:
+      
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 01h
+        mov DL, 00h
+        int 10h
+       
+        mov DX, offset cadena_menu_pause
+        mov AH, 09h
+        int 21h
+
+        mov AH, 00h
+        int 16h
+
+        cmp AH, 3bh ;Continuar
+        je JUEGO 
+        cmp AH, 3ch ;Menu
+        je MENU
+        jmp ciclo_pausa
+
+### 104. PERDER_CHOQUE
+Resta las vidas, y mueve al jugador al inicio en la acera
+
+    PERDER_CHOQUE:
+        dec vidas
+        mov fila_jugador, 17h
+        mov columna_jugador, 13h
+
+### 105. FIN_DETECTAR_TECLA
+Retorna al ciclo del juego
+
+    FIN_DETECTAR_TECLA:
+        ret
+
+### 106. MOVER_VEHICULOS
+Permite iniciar el proceso de movimiento de los carros
+
+    MOVER_VEHICULOS:
+        mov fila_mapa, 02h
+        mov columna_mapa, 00h
+
+### 107. ciclo_fila_mov_vehiculos
+Permite mover en fila el vehiculo
+
+    ciclo_fila_mov_vehiculos:
+       
+        cmp fila_mapa, 16h
+        ja retorno_mov_vehiculos
+
+### 108. ciclo_col_mov_vehiculos
+Permite mover en columan el vehiculo
+
+    ciclo_col_mov_vehiculos:
+        cmp columna_mapa, 27h
+        ja siguiente_fila_mov_vehiculos
+        ;; se utiliza obtener mapa y se verifica el objeto
+        ;; obtener_de_mapa -
+        ;; ENTRADA:
+        ;;  AL -> x del elemento columna
+        ;;  AH -> y del elemento fila
+        ;; SALIDA:
+        ;;  BL -> código del elemento
+        mov AL, columna_mapa
+        mov AH, fila_mapa
+        push AX
+        call OBTENER_DE_MAPA
+        pop AX
+        ;;BL ESTA EL numero del OBJETO
+        ;;se verifica si es un vehiculo que se mueve a la derecha
+        ;; 05, 06
+        cmp BL, 05
+        je MOV_DERECHA_OBJ
+        cmp BL, 06
+        je MOV_DERECHA_OBJ
+        ;;se verifica si es un vehiculo que se mueve a la izquierda
+        ;; 07, 08
+        cmp BL, 07
+        je MOV_IZQUIERDA_OBJ
+        cmp BL, 08
+        je MOV_IZQUIERDA_OBJ
+        ;;se verifica si es un camion que se mueve a la derecha
+        ;; 09
+        cmp BL, 09
+        je MOV_DERECHA_CAMION
+        jmp CONTINUE_COL_MOV_VEHICULOS
+        
+### 109. MOV_DERECHA_OBJ
+Movimiento hacia la derecha
+
+    MOV_DERECHA_OBJ:
+        push AX
+        push CX
+        push DX
+        push DI
+        ;
+        mov DL, tiempo_base_velocidad_media
+        mov DH, 1Eh
+        mov DI, offset tiempo_base_velocidad_media_aux
+        call DELAY
+        ;
+        pop DI
+        pop DX
+        pop CX
+        pop AX
+        cmp bandera_tiempo, 00h
+        je siguiente_fila_mov_vehiculos
+        call MOVER_DERECHA_OBJETO
+        ;call MOVER_DERECHA_OBJETO
+        jmp siguiente_fila_mov_vehiculos
+
+### 110. MOV_IZQUIERDA_OBJ
+Movimiento hacia la izquierda
+    
+    MOV_IZQUIERDA_OBJ:
+        push AX
+        push CX
+        push DX
+        push DI
+        ;
+        mov DL, tiempo_base_velocidad_rapida
+        mov DH, 0ah
+        mov DI, offset tiempo_base_velocidad_rapida_aux
+        call DELAY
+        ;
+        pop DI
+        pop DX
+        pop CX
+        pop AX
+        cmp bandera_tiempo, 00h
+        je siguiente_fila_mov_vehiculos
+        call MOVER_IZQUIERDA_OBJETO
+        jmp siguiente_fila_mov_vehiculos
+
+### 111. MOV_DERECHA_CAMION
+Movimiento hacia la derecha del camion
+
+    MOV_DERECHA_CAMION:
+        push AX
+        push CX
+        push DX
+        push DI
+        
+        mov DL, tiempo_base_velocidad_lenta
+        mov DH, 5Ah
+        mov DI, offset tiempo_base_velocidad_lenta_aux
+        call DELAY
+        
+        pop DI
+        pop DX
+        pop CX
+        pop AX
+        cmp bandera_tiempo, 00h
+        je siguiente_fila_mov_vehiculos
+        call MOVER_DERECHA_CAMION
+        jmp siguiente_fila_mov_vehiculos
+
+### 112. CONTINUE_COL_MOV_VEHICULOS
+Continuar con el movimiento del vehiculo en la columna
+
+    CONTINUE_COL_MOV_VEHICULOS:
+        inc columna_mapa
+        jmp ciclo_col_mov_vehiculos
+
+### 113. siguiente_fila_mov_vehiculos
+Permite desplazar a la siguiente fila el movimiento del vehiculo
+
+    siguiente_fila_mov_vehiculos:
+        inc fila_mapa
+        mov columna_mapa, 00h
+        jmp ciclo_fila_mov_vehiculos
+
+### 114. retorno_mov_vehiculos
+Retorno del movmimiento de un vehiculo
+
+    retorno_mov_vehiculos:
+        push AX
+        mov AL, tiempo_base_velocidad_lenta_aux
+        mov tiempo_base_velocidad_lenta, AL
+        mov AL, tiempo_base_velocidad_media_aux
+        mov tiempo_base_velocidad_media, AL
+        mov AL, tiempo_base_velocidad_rapida_aux
+        mov tiempo_base_velocidad_rapida, AL
+        pop AX
+        ret
+
+### 115. MOVER_DERECHA_OBJETO
+Mueve el objeto a la derecha
+
+    MOVER_DERECHA_OBJETO:
+        
+        mov BH, 00
+        push BX
+        push AX
+        mov BL, CARRIL
+        call COLOCAR_EN_MAPA
+        pop AX
+        pop BX
+        
+        inc AL
+
+        cmp AL, 27h
+        jbe INSERTAR_OBJETO_DERECHA
+        mov AL, 00h
+
+### 116. INSERTAR_OBJETO_DERECHA
+Inserta el ovjeto a la derecha
+
+    INSERTAR_OBJETO_DERECHA:
+        push BX
+        push AX
+        call OBTENER_DE_MAPA
+        mov CL, BL
+       
+        pop AX
+        pop BX
+        cmp CL, 01h
+        jne NOQUITAR_VIDA
+        dec vidas
+        mov fila_jugador, 17h
+        mov columna_jugador, 13h
+
+### 117. MOVER_DERECHA_CAMION
+Mueve el camion a la derecha
+
+    MOVER_DERECHA_CAMION:
+    
+        mov BH, 00
+        push BX
+        push AX 
+        mov BL, CARRIL
+        call COLOCAR_EN_MAPA
+        pop AX
+        
+        inc AL 	
+        cmp AL, 27h
+        jb INSERTAR_TODO_CAMION
+        je INSERTAR_SOLO_INICIO_CAMION
+        mov AL, 00h
+        jmp INSERTAR_TODO_CAMION
+
+### 118. INSERTAR_SOLO_INICIO_CAMION
+Coloca el cambion al inicio del carril
+
+    INSERTAR_SOLO_INICIO_CAMION:
+        mov BL, CAMIONINI
+        call COLOCAR_EN_MAPA
+        jmp RETORNO_MOV_CAMION
+
+### 119. NUMERO_RANDOM
+Genera un numero aleatorio
+
+    NUMERO_RANDOM:
+        mov AH, 00h
+        int 1ah
+    
+        mov AX, DX 
+        mul semilla_random
+        
+        ror AX, 1
+        ror AX, 1
+        ror AX, 1
+        and AX, 03ffh
+
+        mov semilla_random, AX
+        inc semilla_random
+        
+        sub BH, BL 
+        inc BH 
+        
+        div BH
+
+        add AH, BL
+        ret
+
+### 120. INCREMENTAR_CRONOMETRO
+Incrementa el cronometro
+
+    INCREMENTAR_CRONOMETRO:
+        inc contsegundo
+        cmp contsegundo, 3ch
+        jne FIN_CRONOMETRO
+        mov contsegundo, 00h
+        inc contminuto
+        cmp contminuto, 3ch
+        jne FIN_CRONOMETRO
+        mov contminuto, 00h
+        inc conthora
+
+### 121. TABLERO_BASE
+Permite empezar el proceso para dibujar el tablero del juego
+
+    TABLERO_BASE:
+        ;; Y filas 1 -> 17
+        ;; X columnas 0 -> 27
+        mov fila_tablero, 01h
+        mov col_tablero, 00h
+
+### 122. IMPRIMIR_INICIO_BANQUETA
+Permite dibujar la banqueta
+
+    IMPRIMIR_INICIO_BANQUETA:
+        mov AL, col_tablero  	;;columna
+        mov AH, fila_tablero		;;fila
+        mov BL, ACERA
+        call COLOCAR_EN_MAPA
+        inc col_tablero
+        cmp col_tablero, 27
+        jbe IMPRIMIR_INICIO_BANQUETA
+
+        mov fila_tablero, 17h
+        mov col_tablero, 00h
+
+### 123. IMPRIMIR_FINAL_BANQUETA
+Permite imprimir el final de la banqueta
+
+    IMPRIMIR_FINAL_BANQUETA:
+        mov AL, col_tablero  	;;columna
+        mov AH, fila_tablero		;;fila
+        mov BL, ACERA
+        call COLOCAR_EN_MAPA
+        inc col_tablero
+        cmp col_tablero, 27
+        jbe IMPRIMIR_FINAL_BANQUETA
+
+        mov fila_tablero, 02h
+        mov col_tablero, 00h
+
+### 124. IMPRIMIR_CARRILES
+Permite imprimir los carriles del juego
+
+    IMPRIMIR_CARRILES:
+        mov AL , col_tablero
+        mov AH, fila_tablero
+        mov BL, CARRIL
+        call COLOCAR_EN_MAPA
+        inc col_tablero
+        cmp col_tablero, 27
+        jbe IMPRIMIR_CARRILES
+        mov col_tablero, 00h
+        inc fila_tablero
+        cmp fila_tablero, 16
+        jbe IMPRIMIR_CARRILES
+        ret
+
+### 125. COLOCAR_EN_MAPA
+Permite obtener la posicion en el mapa haciendo el calculo de row major
+
+    COLOCAR_EN_MAPA:
+        push AX    ;; guardar las posiciones en la pila
+        mov AL, AH
+        mov AH, 00
+        mov DI, AX
+        mov AX, 28 ;; tamaño máximo de x
+        mul DI
+        ;; DX-AX resultado de la multiplicación
+        pop DX
+        mov DH, 00
+        add AX, DX  ;; AX = 28*y + x
+        ;; índice hacia la memoria del pixel
+        mov SI, offset mapa_tablero
+        add SI, AX
+        mov [SI], BL
+        ret
+
