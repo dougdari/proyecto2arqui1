@@ -1070,7 +1070,6 @@ LOGIN:
 	mov AH, 09h
 	int 21h
 
-
 	;;colocar cursor en la posicion fila, col -> 08h, 06h
 	mov AH, 02h
 	mov BH, 00h
@@ -1203,7 +1202,6 @@ SEGUIR_LEYENDO:
 	int 21h
 	;Volver a pantalla inicial
 	jmp PANTALLA_INICIAL
-
 
 USUARIO_NO_BLOQUEADO:
 	;Posicionar Cursor
