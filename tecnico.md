@@ -31,151 +31,136 @@ CAMIONFIN		         equ 10
 USUARIO_NORMAL			 equ 02    
 USUARIO_ADMIN 			 equ 01    
 USUARIO_ADMIN_ORIGINAL	 equ 00   
+SIZE_NAME	 			 equ 20  
+SIZE_PASSWORD 			 equ 25  
+NO_BLOQUEADO			 equ 00  
+BLOQUEADO				 equ 01  
+vidas                   dw 0003h  
+vida_caracter           db "O  $"  
+novida_caracter         db "#  $"  
+horas 					db "00:"  
+minutos 				db "00:"  
+segundos 				db "00$"    
+conthora 				dw 0000h  
+contminuto 				dw 0000h  
+contsegundo 			dw 0000h  
+cadena_punteo 			db 05 dup('0'), '$' ;;00000 -> 00002  
+punteo_actual 			dw 0000h  
+dia_cadena 				db 02 dup (30),'/'  
+mes_cadena 				db 02 dup (30),'/'  
+anho_cadena 			db 04 dup (30),' '  
+hora_cadena 			db 02 dup (30),':'  
+minutos_cadena 			db 02 dup (30),':'  
+segundos_cadena 		db 02 dup (30), '$'  
+dia_numero 				dw 0000  
+mes_numero 				dw 0000  
+ahno_numero 			dw 0000  
+hora_numero 			dw 0000  
+minutos_numero 			dw 0000  
+segundos_numero 		dw 0000  
+offset_DS_data 			DW 0000h  
+count_col_sprite 		DW 0008h  
+count_fila_sprite 		DW 0008h  
+col_pantalla 			DW 0000h  
+fila_pantalla 			DW 0000h  
+direccion_sprite 		DW 0000h  
+indice_video 			DW 0000h  
+fila_tablero 			db 0000  
+col_tablero 			db 0000  
+mapa_tablero 			db 3e8 dup(00)  
+x_elemento 				dw 0000  
+y_elemento 				dw 0000  
+coordenadas_jugador 	dw 0000  
+coordenada_actual   	dw 0000  
+sprite_jugador_carril 	db 13, 13, 13, 05, 05, 13, 13, 13  
+                      	db 13, 13, 13, 05, 05, 13, 13, 05   
+                      	db 13, 05, 05, 05, 05, 05, 05, 13   
+                      	db 05, 13, 13, 05, 05, 13, 13, 13   
+                      	db 13, 13, 13, 05, 05, 13, 13, 13   
+                      	db 13, 13, 05, 05, 05, 05, 13, 13   
+                      	db 13, 13, 05, 13, 13, 05, 13, 13    
+                      	db 1f, 05, 05, 13, 1f, 05, 05, 13   
 
-SIZE_NAME	 			 equ 20
-SIZE_PASSWORD 			 equ 25
-NO_BLOQUEADO			 equ 00
-BLOQUEADO				 equ 01
+sprite_jugador_acera 	db 17, 17, 17, 05, 05, 17, 17, 17  
+                     	db 17, 17, 17, 05, 05, 17, 17, 05  
+                     	db 17, 05, 05, 05, 05, 05, 05, 17  
+                     	db 05, 17, 17, 05, 05, 17, 17, 17  
+                     	db 17, 17, 17, 05, 05, 17, 17, 17  
+                     	db 17, 17, 05, 05, 05, 05, 17, 17  
+                     	db 17, 17, 05, 1a, 17, 05, 17, 17  
+                     	db 17, 05, 05, 17, 17, 05, 05, 17  
 
-.MODEL small
-.RADIX 16 
-.STACK
-.DATA
-
-vidas                   dw 0003h
-vida_caracter           db "O  $"
-novida_caracter         db "#  $"
-horas 					db "00:"
-minutos 				db "00:"
-segundos 				db "00$"
-conthora 				dw 0000h
-contminuto 				dw 0000h
-contsegundo 			dw 0000h
-cadena_punteo 			db 05 dup('0'), '$' ;;00000 -> 00002
-punteo_actual 			dw 0000h
-
-dia_cadena 				db 02 dup (30),'/' 
-mes_cadena 				db 02 dup (30),'/'
-anho_cadena 			db 04 dup (30),' '
-hora_cadena 			db 02 dup (30),':'
-minutos_cadena 			db 02 dup (30),':'
-segundos_cadena 		db 02 dup (30), '$'
-
-dia_numero 				dw 0000
-mes_numero 				dw 0000
-ahno_numero 			dw 0000
-
-hora_numero 			dw 0000
-minutos_numero 			dw 0000
-segundos_numero 		dw 0000
-
-offset_DS_data 			DW 0000h
-count_col_sprite 		DW 0008h
-count_fila_sprite 		DW 0008h
-col_pantalla 			DW 0000h
-fila_pantalla 			DW 0000h
-direccion_sprite 		DW 0000h
-indice_video 			DW 0000h 
-
-;;
-fila_tablero 			db 0000
-col_tablero 			db 0000
-
-mapa_tablero 			db 3e8 dup(00)
-x_elemento 				dw 0000
-y_elemento 				dw 0000
-coordenadas_jugador 	dw 0000
-coordenada_actual   	dw 0000
-
-sprite_jugador_carril 	db 13, 13, 13, 05, 05, 13, 13, 13 
-                      	db 13, 13, 13, 05, 05, 13, 13, 05 
-                      	db 13, 05, 05, 05, 05, 05, 05, 13 
-                      	db 05, 13, 13, 05, 05, 13, 13, 13 
-                      	db 13, 13, 13, 05, 05, 13, 13, 13 
-                      	db 13, 13, 05, 05, 05, 05, 13, 13 
-                      	db 13, 13, 05, 13, 13, 05, 13, 13 
-                      	db 1f, 05, 05, 13, 1f, 05, 05, 13 
-
-sprite_jugador_acera 	db 17, 17, 17, 05, 05, 17, 17, 17 
-                     	db 17, 17, 17, 05, 05, 17, 17, 05 
-                     	db 17, 05, 05, 05, 05, 05, 05, 17 
-                     	db 05, 17, 17, 05, 05, 17, 17, 17 
-                     	db 17, 17, 17, 05, 05, 17, 17, 17 
-                     	db 17, 17, 05, 05, 05, 05, 17, 17 
-                     	db 17, 17, 05, 1a, 17, 05, 17, 17 
-                     	db 17, 05, 05, 17, 17, 05, 05, 17 
-
-sprite_carril  			db 13, 13, 13, 13, 13, 13, 13, 13 
+sprite_carril  			db 13, 13, 13, 13, 13, 13, 13, 13  
+               			db 13, 13, 13, 13, 13, 13, 13, 13  
                			db 13, 13, 13, 13, 13, 13, 13, 13 
-               			db 13, 13, 13, 13, 13, 13, 13, 13 
-               			db 13, 13, 13, 13, 13, 13, 13, 13 
-               			db 13, 13, 13, 13, 13, 13, 13, 13 
-               			db 13, 13, 13, 13, 13, 13, 13, 13 
-               			db 13, 13, 13, 13, 13, 13, 13, 13 
-               			db 1f, 1f, 13, 13, 1f, 1f, 13, 13 
+               			db 13, 13, 13, 13, 13, 13, 13, 13  
+               			db 13, 13, 13, 13, 13, 13, 13, 13  
+               			db 13, 13, 13, 13, 13, 13, 13, 13  
+               			db 13, 13, 13, 13, 13, 13, 13, 13  
+               			db 1f, 1f, 13, 13, 1f, 1f, 13, 13  
 
-sprite_banqueta 		db 17, 17, 17, 17, 17, 17, 17, 17 
-                		db 17, 17, 17, 1a, 17, 17, 17, 17 
-                		db 17, 17, 17, 1a, 17, 17, 17, 17 
-                		db 17, 17, 17, 1a, 17, 17, 17, 17 
-                		db 17, 17, 17, 1a, 17, 17, 17, 17 
-                		db 17, 17, 17, 1a, 17, 17, 17, 17 
-                		db 17, 17, 17, 1a, 17, 17, 17, 17 
-                		db 17, 17, 17, 17, 17, 17, 17, 17 
+sprite_banqueta 		db 17, 17, 17, 17, 17, 17, 17, 17  
+                		db 17, 17, 17, 1a, 17, 17, 17, 17  
+                		db 17, 17, 17, 1a, 17, 17, 17, 17  
+                		db 17, 17, 17, 1a, 17, 17, 17, 17  
+                		db 17, 17, 17, 1a, 17, 17, 17, 17  
+                		db 17, 17, 17, 1a, 17, 17, 17, 17  
+                		db 17, 17, 17, 1a, 17, 17, 17, 17  
+                		db 17, 17, 17, 17, 17, 17, 17, 17  
 
-sprite_carro_morado_derecha db 13, 00, 00, 13, 13, 00, 00, 13
-							db 05, 05, 05, 05, 05, 05, 05, 05
-							db 05, 09, 09, 05, 05, 05, 09, 05
-							db 05, 09, 09, 05, 05, 05, 09, 05
-							db 05, 09, 09, 05, 05, 05, 09, 05
-							db 05, 09, 09, 05, 05, 05, 09, 05
-							db 05, 05, 05, 05, 05, 05, 05, 05
-							db 13, 00, 00, 13, 13, 00, 00, 13
+sprite_carro_morado_derecha db 13, 00, 00, 13, 13, 00, 00, 13  
+							db 05, 05, 05, 05, 05, 05, 05, 05  
+							db 05, 09, 09, 05, 05, 05, 09, 05  
+							db 05, 09, 09, 05, 05, 05, 09, 05  
+							db 05, 09, 09, 05, 05, 05, 09, 05  
+							db 05, 09, 09, 05, 05, 05, 09, 05  
+							db 05, 05, 05, 05, 05, 05, 05, 05  
+							db 13, 00, 00, 13, 13, 00, 00, 13  
 
-sprite_carro_azul_derecha   db 13, 00, 00, 13, 13, 00, 00, 13
-							db 01, 01, 01, 01, 01, 01, 01, 01
-							db 01, 09, 09, 01, 01, 01, 09, 01
-							db 01, 09, 09, 01, 01, 01, 09, 01
-							db 01, 09, 09, 01, 01, 01, 09, 01
-							db 01, 09, 09, 01, 01, 01, 09, 01
-							db 01, 01, 01, 01, 01, 01, 01, 01
-							db 13, 00, 00, 13, 13, 00, 00, 13
+sprite_carro_azul_derecha   db 13, 00, 00, 13, 13, 00, 00, 13  
+							db 01, 01, 01, 01, 01, 01, 01, 01  
+							db 01, 09, 09, 01, 01, 01, 09, 01  
+							db 01, 09, 09, 01, 01, 01, 09, 01  
+							db 01, 09, 09, 01, 01, 01, 09, 01  
+							db 01, 09, 09, 01, 01, 01, 09, 01  
+							db 01, 01, 01, 01, 01, 01, 01, 01  
+							db 13, 00, 00, 13, 13, 00, 00, 13  
 
-sprite_carro_verde_izq      db 13, 00, 00, 13, 13, 00, 00, 13
-							db 02, 02, 02, 02, 02, 02, 02, 02
-							db 02, 09, 02, 02, 02, 09, 09, 02
-							db 02, 09, 02, 02, 02, 09, 09, 02
-							db 02, 09, 02, 02, 02, 09, 09, 02
-							db 02, 09, 02, 02, 02, 09, 09, 02
-							db 02, 02, 02, 02, 02, 02, 02, 02
-							db 13, 00, 00, 13, 13, 00, 00, 13
+sprite_carro_verde_izq      db 13, 00, 00, 13, 13, 00, 00, 13  
+							db 02, 02, 02, 02, 02, 02, 02, 02   
+							db 02, 09, 02, 02, 02, 09, 09, 02  
+							db 02, 09, 02, 02, 02, 09, 09, 02  
+							db 02, 09, 02, 02, 02, 09, 09, 02  
+							db 02, 09, 02, 02, 02, 09, 09, 02  
+							db 02, 02, 02, 02, 02, 02, 02, 02  
+							db 13, 00, 00, 13, 13, 00, 00, 13  
 
-sprite_carro_amarillo_izq   db 13, 00, 00, 13, 13, 00, 00, 13
-							db 06, 06, 06, 06, 06, 06, 06, 06
-							db 06, 09, 06, 06, 06, 09, 09, 06
-							db 06, 09, 06, 06, 06, 09, 09, 06
-							db 06, 09, 06, 06, 06, 09, 09, 06
-							db 06, 09, 06, 06, 06, 09, 09, 06
-							db 06, 06, 06, 06, 06, 06, 06, 06
-							db 13, 00, 00, 13, 13, 00, 00, 13
+sprite_carro_amarillo_izq   db 13, 00, 00, 13, 13, 00, 00, 13  
+							db 06, 06, 06, 06, 06, 06, 06, 06  
+							db 06, 09, 06, 06, 06, 09, 09, 06  
+							db 06, 09, 06, 06, 06, 09, 09, 06  
+							db 06, 09, 06, 06, 06, 09, 09, 06  
+							db 06, 09, 06, 06, 06, 09, 09, 06  
+							db 06, 06, 06, 06, 06, 06, 06, 06  
+							db 13, 00, 00, 13, 13, 00, 00, 13  
 
-sprite_inicio_camion_blanco 	db 13, 00, 00, 13, 13, 00, 00, 13
-								db 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f
-								db 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f
-								db 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f
-								db 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f
-								db 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f
-								db 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f
-								db 13, 00, 00, 13, 13, 00, 00, 13
+sprite_inicio_camion_blanco 	db 13, 00, 00, 13, 13, 00, 00, 13  
+								db 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f  
+								db 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f  
+								db 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f  
+								db 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f  
+								db 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f  
+								db 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f  
+								db 13, 00, 00, 13, 13, 00, 00, 13  
 
-sprite_fin_camion_blanco 		db 13, 13, 13, 13, 13, 13, 13, 13
-								db 0f, 0f, 0f, 0f, 13, 00, 00, 13
-								db 0f, 0f, 0f, 0f, 07, 07, 07, 07
-								db 0f, 0f, 0f, 0f, 07, 07, 07, 07
-								db 0f, 0f, 0f, 0f, 07, 07, 07, 07
-								db 0f, 0f, 0f, 0f, 07, 07, 07, 07
-								db 0f, 0f, 0f, 0f, 13, 00, 00, 13
-								db 13, 13, 13, 13, 13, 13, 13, 13
+sprite_fin_camion_blanco 		db 13, 13, 13, 13, 13, 13, 13, 13  
+								db 0f, 0f, 0f, 0f, 13, 00, 00, 13  
+								db 0f, 0f, 0f, 0f, 07, 07, 07, 07  
+								db 0f, 0f, 0f, 0f, 07, 07, 07, 07  
+								db 0f, 0f, 0f, 0f, 07, 07, 07, 07  
+								db 0f, 0f, 0f, 0f, 07, 07, 07, 07  
+								db 0f, 0f, 0f, 0f, 13, 00, 00, 13  
+								db 13, 13, 13, 13, 13, 13, 13, 13  
 
 
 cadena_limpiar 						db "                                        $" 
