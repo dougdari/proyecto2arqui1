@@ -342,3 +342,34 @@ cadena_pantalla_inicial								db "	 F1	 LOGIN",0ah,0ah
 cadena_menu_pause									db "	F1	CONTINUAR",0ah,0ah  
 													db "	F2	SALIR",0ah,0ah,"$"  
 
+### 1. cambioModoVideo
+Cambia el modo por defecto al modo de video y muestra el mensaje inicial que es la precentacion de los datos
+
+    mov AL, 13h
+    mov AH, 00h 
+    int 10h
+
+	mov AH, 02h
+	mov BH, 00h
+	mov DH, 00h
+	mov DL, 00h
+	int 10h
+
+	mov DX, offset presentacion
+	mov AH, 09h
+	int 21h
+
+### 2. Retardo
+Permite retardar la pantalla dos segundos antes de saltar a la pantalla inicial del juego
+
+    MOV SI, 2710h
+    et2:	
+        DEC SI
+        JZ et3
+        MOV DI, 1482h
+    et1:		
+        DEC DI
+        JNZ et1
+        JMP et2
+    et3:
+        jmp PANTALLA_INICIAL
