@@ -325,7 +325,7 @@ segundos_generacion 								db 00h
 reporte_html 										db "<!DOCTYPE html><html><head><meta charset='utf-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'>"
              										db "<title>Reporte</title><meta name='viewport' content='width=device-width, initial-scale=1'>"
              										db "<style>body{display: block;justify-content: center;align-items: center;height: 100vh;margin: 0;}table{border-collapse: collapse;width: 50%;"
-             										db "margin-top: 20px;}th,td{border: 1px solid #dddddd;text-align: left;padding: 8px;}th{background-color: #f2f2f2;}</style></head>"
+             										db "margin-top: 20px;}th,td{border: 1px solid #dddddd;text-align: left;padding: 8px;}th{background-color: #ffffff;}</style></head>"
              										db "<body><h1>Usuario: "
 
 nombre_usuario 										db 14 dup (00) 
