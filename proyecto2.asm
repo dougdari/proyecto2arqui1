@@ -1071,7 +1071,6 @@ LOGIN:
 	int 21h
 
 
-
 	;;colocar cursor en la posicion fila, col -> 08h, 06h
 	mov AH, 02h
 	mov BH, 00h
@@ -3251,6 +3250,7 @@ retorno_mover_jugador:
 	ret
 
 DETECTAR_TECLA:
+
 	mov AH, 01h 
 	int 16h
 	jz FIN_DETECTAR_TECLA
@@ -3263,11 +3263,15 @@ DETECTAR_TECLA:
 	je PINTAR_ACERA_JUGADOR
 	mov BL, CARRIL
 	call COLOCAR_EN_MAPA
-	jmp SIG
+	jmp MOVIMIENTO
+
 PINTAR_ACERA_JUGADOR:
+
 	mov BL, ACERA
 	call COLOCAR_EN_MAPA
-SIG:
+
+MOVIMIENTO:
+
 	mov AH, 00h
 	int 16h
 
@@ -3288,6 +3292,7 @@ SIG:
 	je PAUSA_JUEGO
 
 	jmp FIN_DETECTAR_TECLA
+
 MOVER_ARRIBA:
 	cmp fila_jugador, 02h
 	jb FIN_DETECTAR_TECLA
