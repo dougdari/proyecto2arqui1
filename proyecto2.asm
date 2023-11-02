@@ -2422,9 +2422,9 @@ SEGUIR_LOOP_ORDENAMIENTO:
 	mov DL, 00h
 	int 10h
 	;Imprimir caracter '*'
-	mov AH, 02h
-	mov DL, '>'
-	int 21h
+	;mov AH, 02h
+	;mov DL, '>'
+	;int 21h
 	;posicionar cursor
 	inc count_marcador
 	mov AH, 0002h
@@ -2432,10 +2432,10 @@ SEGUIR_LOOP_ORDENAMIENTO:
 	mov DH, count_marcador
 	mov DL, 00h
 	int 10h
-	Imprimir caracter '*'
-	mov AH, 02h
-	mov DL, '>'
-	int 21h
+	;Imprimir caracter '*'
+	;mov AH, 02h
+	;mov DL, '>'
+	;int 21h
 	;Delay de velocidad de ordenamiento
 	MOV SI, rr_delay
 et_2:	
