@@ -296,59 +296,6 @@ anho_generacion 									dw 0000h
 hora_generacion 									db 00h  
 minutos_generacion 									db 00h  
 segundos_generacion 								db 00h  
-reporte_html 										db "<!DOCTYPE html><html><head><meta charset='utf-8'><meta http-equiv='X-UA-Compatible' content='IE=edge'>"    
-             										db "<title>Reporte</title><meta name='viewport' content='width=device-width, initial-scale=1'>"  
-             										db "<style>body{display: block;justify-content: center;align-items: center;height: 100vh;margin: 0;}table{border-collapse: collapse;width: 50%;"  
-             										db "margin-top: 20px;}th,td{border: 1px solid #dddddd;text-align: left;padding: 8px;}th{background-color: #fffff;}</style></head>"  
-             										db "<body><h1>Usuario: "  
-nombre_usuario 										db 14 dup (00)  
-             										db "</h1>"  
-             										db "<h2>Fecha y Hora Generacion Reporte</h2>"  
-             										db "<h2>Fecha: "  
-dia_cadena_generacion 								db 02 dup (30),'/'  
-mes_cadena_generacion 								db 02 dup (30),'/'  
-anho_cadena_generacion 								db 04 dup (30)  
-             										db "</h2>"  
-             										db "<h2>Hora: "  
-hora_cadena_generacion 								db 02 dup (30),':'  
-minutos_cadena_generacion 							db 02 dup (30),':'  
-segundos_cadena_generacion 							db 02 dup (30)  
-             										db "</h2>"  
-			 										db "<h2>Fecha y Hora de ingreso al Sistema del Usuario</h2>"  
-             										db "<h2>Fecha: "  
-dia_cadena_ingreso 									db 02 dup (30),'/'   
-mes_cadena_ingreso 									db 02 dup (30),'/'  
-anho_cadena_ingreso 								db 04 dup (30)  
-    												db "</h2>"  
-             										db "<h2>Hora: "  
-hora_cadena_ingreso 								db 02 dup (30),':'  
-minutos_cadena_ingreso 								db 02 dup (30),':'  
-segundos_cadena_ingreso 							db 02 dup (30)  
-             										db "</h2>"  
-fin_html 											db "</body></html>"  
-titulo_tabla_usuarios_activos 						db "<h1>Usuario Activos</h1>"  
-titulo_tabla_usuarios_deshabilitados 				db "<h1>Usuario Deshabilitados</h1>"  
-inicio_tabla_usuarios 								db "<table style='display: block;'><thead><tr> <th>Usuario</th> <th>Password</th> <tr>"  
-             		  								db "</thead><tbody>"  
-abre_fila_tabla_usuarios 							db "<tr> <td>"  
-cierra_columna_tabla_usuarios						db "</td> <td>"  
-cierra_fila_tabla_usuarios							db "</td> </tr>"  
-asterisco 											db "*"  
-fin_tabla_usuarios 									db "</tbody></table>"  
-titulo_tabla_partidas 								db "<h1>Ultimas 15 Partidas</h1>"  
-titulo_tabla_top 									db "<h1>Puntajes Top 10</h1>"  
-inicio_tabla_puntaje 								db "<table style='display: block;'><thead><tr> <th>Usuario</th> <th>Puntuacion</th> <th>Tiempo</th> <tr>"  
-             		 								db "</thead><tbody>"  
-fila_tabla_puntaje  								db "<tr> <td>"  
-usuario_tabla_puntaje 								db 14 dup (00)  
-													db "</td> <td>"  
-puntuacion_tabla 									db 05 dup (00)  
-													db "</td>  <td>"  
-hora_tabla 											db 02 dup (00), ':'  
-minuto_tabla 										db 02 dup (00), ':'  
-segundo_tabla 										db 02 dup (00)  
-													db "</td> </tr>"  
-fin_tabla_puntaje 									db "</tbody></table>"  
 usuario_leido_aux 									db 14 dup(00)  
 password_usuario_aux 								db 19 dup(00)  
 rol_usuario_aux 									db 00  
