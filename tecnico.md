@@ -304,6 +304,7 @@ reporte_html 										db "<!DOCTYPE html><html><head><meta charset='utf-8'><met
              										db "<body><h1>Usuario: "  
 nombre_usuario 										db 14 dup (00)  
              										db "</h1>"  
+                                                    
              										db "<h2>Fecha y Hora Generacion Reporte</h2>"  
              										db "<h2>Fecha: "  
 dia_cadena_generacion 								db 02 dup (30),'/'  
