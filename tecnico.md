@@ -994,348 +994,379 @@ Permite mostarr cuando es un admin normal en el menu
         mov AH, 09h
         int 21h
 
+### 21. SIGUE_MENU
+Permite comparar la opcion utililizada del menu
 
-SIGUE_MENU:
-	;;se lee la tecla presionada
-	mov AH, 00h
-	int 16h
+    SIGUE_MENU:
+        
+        mov AH, 00h
+        int 16h
 
-	;;se compara la tecla presionada
-	cmp AH, 3bh ;F1
-	je CONFIG_JUEGO  ;Nueva Partida
-	cmp AH, 3ch ;F2
-	je ULTIMAS_PARTIDAS
-	cmp AH, 3dh ;F3
-	je PANTALLA_INICIAL
-	cmp AH, 3eh ;F4
-	je ESTADISTICAS
-	cmp AH, 3fh ;F5
-	je ORDENAMIENTO
-	cmp AH, 40h
-	je DESBLOQUEAR_USUARIO
-	cmp AH, 41h
-	je REPORTE_DEL_SISTEMA
-	cmp AH, 42h
-	je PROMOVER_O_DEGRADAR
-	jmp SIGUE_MENU
+        
+        cmp AH, 3bh ;F1
+        je CONFIG_JUEGO  ;Nueva Partida
+        cmp AH, 3ch ;F2
+        je ULTIMAS_PARTIDAS
+        cmp AH, 3dh ;F3
+        je PANTALLA_INICIAL
+        cmp AH, 3eh ;F4
+        je ESTADISTICAS
+        cmp AH, 3fh ;F5
+        je ORDENAMIENTO
+        cmp AH, 40h
+        je DESBLOQUEAR_USUARIO
+        cmp AH, 41h
+        je REPORTE_DEL_SISTEMA
+        cmp AH, 42h
+        je PROMOVER_O_DEGRADAR
+        jmp SIGUE_MENU
 
-ESTADISTICAS:
-	call limpiar_pantalla
-	;;Imprimir titulo de estadisticas
-	;Posicionar Cursos 0,0 e imprimir titulo de puntajes
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 00h ;;fila
-	mov DL, 00h	;;columna
-	int 10h
+### 22. ESTADISTICAS
+Permite mostrar los titulos de las estadisticas
 
-	mov DX, offset cadena_titulo_estadisticas
-	mov AH, 09h
-	int 21h
+    ESTADISTICAS:
+        call limpiar_pantalla
+        
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 00h ;;fila
+        mov DL, 00h	;;columna
+        int 10h
 
-	;;Poner $ en la posicion 21 del buffer_entrada_usuario
-	mov BX, offset buffer_entrada_usuario + 16
-	;;
-	mov AL, "$"
-	mov [BX], AL
+        mov DX, offset cadena_titulo_estadisticas
+        mov AH, 09h
+        int 21h
 
-	;;Abrir el archivo de Puntajes
-	mov AH, 3dh
-	mov AL, 00h ;Solo lectura
-	mov DX, offset nombre_archivo_puntajes
-	int 21h
-	;error de apertura
-	;jc ERROR_APERTURA
+        mov BX, offset buffer_entrada_usuario + 16
+        
+        mov AL, "$"
+        mov [BX], AL
+        
+        mov AH, 3dh
+        mov AL, 00h 
+        mov DX, offset nombre_archivo_puntajes
+        int 21h
 
-	mov handle_puntajes, AX
+        mov handle_puntajes, AX
 
-	;;Leer los Puntajes
-;;Leer los Usuario y verificar que no exista
-LEER_USUARIO_PUNTAJE_ESTADISTICAS:
-	;;leer usuario
-	mov AH, 3fh
-	mov BX,	handle_puntajes
-	mov CX, 1Dh ;;se lee toda la estructura
-	mov DX, offset usuario_puntaje
-	int 21h
-	;;error de lectura
-	;jc ERROR_LECTURA
-	cmp AX, 00h
-	je TERMINAR_LECTURA_ESTADISTICAS
-	mov CX, 0014h
-	mov SI, offset usuario_puntaje
-	mov DI, offset [buffer_entrada_usuario + 2]
-	;;si llega aqui es porque se encontro el usuario
-	;;se imprime el usuario
-	mov DX, offset usuario_puntaje
-	mov AH, 09h
-	int 21h
-	;convertir puntaje_usuario en cadena y guardar el cadena_puntaje
-	mov AX, puntaje_usuario
-	mov DI, offset cadena_puntaje
-	mov CX, 0005h
-	call numAstr
-	;convertir tiempo a cadena
-	mov AX, hora_partida_puntaje
-	mov DI, offset cadena_hora_puntaje
-	mov CX, 0002h
-	call numAstr
-	mov AX, minuto_partida_puntaje
-	mov DI, offset cadena_minuto_puntaje
-	mov CX, 0002h
-	call numAstr
-	mov AX, segundo_partida_puntaje
-	mov DI, offset cadena_segundo_puntaje
-	mov CX, 0002h
-	call numAstr
-	;imprimir cadena_puntaje
-	mov DX, offset puntos_y_tiempo
-	mov AH, 09h
-	int 21h
-	;;imprimir caracter de salto de linea
-	mov DL, 0ah
-	mov AH, 02h
-	int 21h
-	jmp LEER_USUARIO_PUNTAJE_ESTADISTICAS
+### 23. LEER_USUARIO_PUNTAJE_ESTADISTICAS
+Permite leer los puntajes del usuario dentro del archivo
 
-TERMINAR_LECTURA_ESTADISTICAS:
-	;;cerrar archivo
-	mov BX, handle_puntajes
-	mov AH, 3eh
-	int 21h
+    LEER_USUARIO_PUNTAJE_ESTADISTICAS:
+        
+        mov AH, 3fh
+        mov BX,	handle_puntajes
+        mov CX, 1Dh ;;se lee toda la estructura
+        mov DX, offset usuario_puntaje
+        int 21h
+        
 
-	;;esperar a presionar una tecla
-	mov AH, 01h
-	int 21h
+        cmp AX, 00h
+        je TERMINAR_LECTURA_ESTADISTICAS
+        mov CX, 0014h
+        mov SI, offset usuario_puntaje
+        mov DI, offset [buffer_entrada_usuario + 2]
+        
+        mov DX, offset usuario_puntaje
+        mov AH, 09h
+        int 21h
+        
+        mov DI, offset cadena_puntaje
+        mov CX, 0005h
+        call numAstr
+        
+        mov AX, hora_partida_puntaje
+        mov DI, offset cadena_hora_puntaje
+        mov CX, 0002h
+        call numAstr
+        mov AX, minuto_partida_puntaje
+        mov DI, offset cadena_minuto_puntaje
+        mov CX, 0002h
+        call numAstr
+        mov AX, segundo_partida_puntaje
+        mov DI, offset cadena_segundo_puntaje
+        mov CX, 0002h
+        call numAstr
+        
+        mov DX, offset puntos_y_tiempo
+        mov AH, 09h
+        int 21h
+        
+        mov DL, 0ah
+        mov AH, 02h
+        int 21h
+        jmp LEER_USUARIO_PUNTAJE_ESTADISTICAS
 
-	;;Quitar $ en la posicion 21 del buffer_entrada_usuario
-	mov BX, offset buffer_entrada_usuario + 16
-	;;
-	mov AL, 00
-	mov [BX], AL
+### 24. TERMINAR_LECTURA_ESTADISTICAS
+Permite terminar la lectura de los punteos del archivos del usuario
 
-	jmp MENU
+    TERMINAR_LECTURA_ESTADISTICAS:
+     
+        mov BX, handle_puntajes
+        mov AH, 3eh
+        int 21h
 
+        mov AH, 01h
+        int 21h
 
-PROMOVER_O_DEGRADAR:
-	call limpiar_pantalla
-	;;Imprimir titulo de promover o degradar
-	;Poner cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 00h ;fila
-	mov DL, 00h	;columna
-	int 10h	
-	;Imprimri titulo de desbloque de usuario
-	mov DX, offset cadena_titulo_promover_usuario
-	mov AH, 09h
-	int 21h
-	;Poner cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 02h ;fila
-	mov DL, 00h	;columna
-	int 10h	
-	;Imprimir menu de promover o degradar
-	mov DX, offset menu_promover_degradar_usuario
-	mov AH, 09h
-	int 21h
-	;Leer Opcion
-	mov AH, 08h
-	int 21h
-	;Verificar la opcion elegida
-	mov opcion_promover_degradar, AL
-	cmp AL, '1'
-	je PROMOVER_DEGRADAR
-	cmp AL, '2'
-	je PROMOVER_DEGRADAR
-	jmp PROMOVER_O_DEGRADAR
-	;
-PROMOVER_DEGRADAR:
-	;Limpiar buffer
-	mov BX, offset buffer_promover_degradar_usuario
-	call limpiar_buffer
-	;Poner cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 07h ;fila
-	mov DL, 00h	;columna
-	int 10h	
-	;Imprimir ingrese usuario
-	mov DX, offset cadena_ingrese_usuario_promover
-	mov AH, 09h
-	int 21h
-	;Leer usuario
-	mov AH, 0ah
-	mov DX, offset buffer_promover_degradar_usuario
-	int 21h
-	;Quitar el salto de linea al final del buffer
-	mov AL, [buffer_promover_degradar_usuario+1]
-	mov AH, 00
-	mov SI, AX
-	mov DI, offset buffer_promover_degradar_usuario+2
-	add DI, SI
-	mov AL, 00
-	mov [DI], AL
-	;Abrir archivo de usuarios
-	mov AH, 3dh
-	mov AL, 02h
-	mov DX, offset usuarios_archivo
-	int 21h
-	;error de apertura
-	;jc ERROR_APERTURA
-	mov handle_usuarios, AX
-	;
-	;Leer los Usuarios
-LEER_USUARIO_PROMOVER_DEGRADAR:
-	;Guardar pointer actual del archivo de usuarios
-	mov AH, 42h
-	mov AL, 01h
-	mov BX, handle_usuarios
-	mov CX, 0000h
-	mov DX, 0000h
-	int 21h
-	mov offset_promover_degradar_usuario, AX
-	;leer usuario
-	mov AH, 3fh
-	mov BX, handle_usuarios
-	mov CX, 2fh ;;se lee toda la estructura
-	mov DX, offset usuario_leido_aux
-	int 21h
-	;;error de lectura
-	;jc ERROR_LECTURA
-	cmp AX, 00h
-	je FINAL_LEER_USUARIO_PROMOVER_DEGRADAR
-	mov CX, 0014h
-	mov SI, offset usuario_leido_aux
-	mov DI, offset [buffer_promover_degradar_usuario + 2]
-LOOP_COMPARAR_USUARIO_PROMOVER_DEGRADAR:
-	mov AL, [SI]
-	cmp AL, [DI]
-	jne LEER_USUARIO_PROMOVER_DEGRADAR
-	inc SI
-	inc DI
-	loop LOOP_COMPARAR_USUARIO_PROMOVER_DEGRADAR
-	;;si llega aqui es porque el usuario coincide
-	;Mover a offset Guardado del usuario que coincide
-	add offset_promover_degradar_usuario, 002Dh
-	;Verficar que opcion se eligio para asi cambiar el rol
-	cmp opcion_promover_degradar, '1'
-	je PROMOVER_USUARIO
-	cmp opcion_promover_degradar, '2'
-	je DEGRADAR_USUARIO
+        mov BX, offset buffer_entrada_usuario + 16
+   
+        mov AL, 00
+        mov [BX], AL
 
-PROMOVER_USUARIO:
-	mov rol_promover_degradar, 01h
-	jmp ESCRIBIR_PROMOVER_DEGRADAR
-DEGRADAR_USUARIO:
-	mov rol_promover_degradar, 02h
-ESCRIBIR_PROMOVER_DEGRADAR:
-	mov AH, 42h
-	mov AL, 00h
-	mov BX, handle_usuarios
-	mov CX, 0000h
-	mov DX, offset_promover_degradar_usuario
-	int 21h
-	;
-	;Escribir en el archivo
-	mov BX, handle_usuarios
-	mov CX, 0001h
-	mov DX, offset rol_promover_degradar
-	mov AH, 40h
-	int 21h
-	;
-	;Cerrar archivo
-	mov BX, handle_usuarios
-	mov AH, 3eh
-	int 21h
-	;Poner cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 18h ;fila
-	mov DL, 00h	;columna
-	int 10h
-	;Imprimir cadena de usuario bloqueado
-	mov DX, offset cadena_usuario_promovido_degradado
-	mov AH, 09h
-	int 21h
-	;Esperar a presionar una tecla
-	mov AH, 01h
-	int 21h
-	;
-	jmp FINAL_PROMOVER_DEGRADAR
-FINAL_LEER_USUARIO_PROMOVER_DEGRADAR:
-	;Cerrar archivo
-	mov BX, handle_usuarios
-	mov AH, 3eh
-	int 21h
-	;Poner cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 18h ;fila
-	mov DL, 00h	;columna
-	int 10h
-	;Imprimir cadena de usuario bloqueado
-	mov DX, offset cadena_error_no_existe_usuario
-	mov AH, 09h
-	int 21h
-	;Esperar a presionar una tecla
-	mov AH, 01h
-	int 21h
-	;
-	jmp FINAL_PROMOVER_DEGRADAR
-FINAL_PROMOVER_DEGRADAR:
-	jmp MENU
+        jmp MENU
 
-DESBLOQUEAR_USUARIO:
-	call limpiar_pantalla
-	;Limpiar buffer
-	mov BX, offset buffer_desbloqueo_usuario
-	call limpiar_buffer
-	;Poner cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 00h ;fila
-	mov DL, 00h	;columna
-	int 10h	
-	;Imprimri titulo de desbloque de usuario
-	mov DX, offset cadena_titulo_desbloqueo_usuario
-	mov AH, 09h
-	int 21h
-	;Poner cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 02h ;fila
-	mov DL, 05h	;columna
-	int 10h	
-	;Imprimir ingrese usuario
-	mov DX, offset cadena_ingrese_usuario
-	mov AH, 09h
-	int 21h
-	;Leer usuario
-	mov AH, 0ah
-	mov DX, offset buffer_desbloqueo_usuario
-	int 21h
-	;Quitar el salto de linea al final del buffer
-	mov AL, [buffer_desbloqueo_usuario+1]
-	mov AH, 00
-	mov SI, AX
-	mov DI, offset buffer_desbloqueo_usuario+2
-	add DI, SI
-	mov AL, 00
-	mov [DI], AL
-	;Abrir archivo de usuarios
-	mov AH, 3dh
-	mov AL, 02h
-	mov DX, offset usuarios_archivo
-	int 21h
-	;error de apertura
-	;jc ERROR_APERTURA
-	mov handle_usuarios, AX
-	;
-	;Leer los Usuarios
+### 25. PROMOVER_O_DEGRADAR
+Permite acceder a las opciones de promover o degradar
+
+    PROMOVER_O_DEGRADAR:
+
+        call limpiar_pantalla
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 00h 
+        mov DL, 00h	
+        int 10h	
+        mov DX, offset cadena_titulo_promover_usuario
+        mov AH, 09h
+        int 21h
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 02h 
+        mov DL, 00h	
+        int 10h	
+
+        mov DX, offset menu_promover_degradar_usuario
+        mov AH, 09h
+        int 21h
+
+        mov AH, 08h
+        int 21h
+
+        mov opcion_promover_degradar, AL
+        cmp AL, '1'
+        je PROMOVER_DEGRADAR
+        cmp AL, '2'
+        je PROMOVER_DEGRADAR
+        jmp PROMOVER_O_DEGRADAR
+	
+### 26. PROMOVER_DEGRADAR
+Permite ingresar el usuario que se desea degradar o promover
+
+    PROMOVER_DEGRADAR:
+       
+        mov BX, offset buffer_promover_degradar_usuario
+        call limpiar_buffer
+        
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 07h ;fila
+        mov DL, 00h	;columna
+        int 10h	
+        
+        mov DX, offset cadena_ingrese_usuario_promover
+        mov AH, 09h
+        int 21h
+       
+        mov AH, 0ah
+        mov DX, offset buffer_promover_degradar_usuario
+        int 21h
+        
+        mov AL, [buffer_promover_degradar_usuario+1]
+        mov AH, 00
+        mov SI, AX
+        mov DI, offset buffer_promover_degradar_usuario+2
+        add DI, SI
+        mov AL, 00
+        mov [DI], AL
+        
+        mov AH, 3dh
+        mov AL, 02h
+        mov DX, offset usuarios_archivo
+        int 21h
+        
+        mov handle_usuarios, AX
+
+### 27. LEER_USUARIO_PROMOVER_DEGRADAR
+Permite iniciar la lecutura de los archivos para promover o degradar a los usuarios
+
+    LEER_USUARIO_PROMOVER_DEGRADAR:
+       
+        mov AH, 42h
+        mov AL, 01h
+        mov BX, handle_usuarios
+        mov CX, 0000h
+        mov DX, 0000h
+        int 21h
+        mov offset_promover_degradar_usuario, AX
+       
+        mov AH, 3fh
+        mov BX, handle_usuarios
+        mov CX, 2fh ;;se lee toda la estructura
+        mov DX, offset usuario_leido_aux
+        int 21h
+       
+        cmp AX, 00h
+        je FINAL_LEER_USUARIO_PROMOVER_DEGRADAR
+        mov CX, 0014h
+        mov SI, offset usuario_leido_aux
+        mov DI, offset [buffer_promover_degradar_usuario + 2]
+
+### 28. LOOP_COMPARAR_USUARIO_PROMOVER_DEGRADAR
+Perminte iniciar el ciclo de la lectura de los archivos para encontrar el usuario a degradar o a promover
+
+    LOOP_COMPARAR_USUARIO_PROMOVER_DEGRADAR:
+        mov AL, [SI]
+        cmp AL, [DI]
+        jne LEER_USUARIO_PROMOVER_DEGRADAR
+        inc SI
+        inc DI
+        loop LOOP_COMPARAR_USUARIO_PROMOVER_DEGRADAR
+        
+        ;Mover a offset Guardado del usuario que coincide
+        add offset_promover_degradar_usuario, 002Dh
+        
+        cmp opcion_promover_degradar, '1'
+        je PROMOVER_USUARIO
+        cmp opcion_promover_degradar, '2'
+        je DEGRADAR_USUARIO
+
+### 29. PROMOVER_USUARIO
+Permite promover el rol del usuario
+    
+    PROMOVER_USUARIO:
+
+        mov rol_promover_degradar, 01h
+        jmp ESCRIBIR_PROMOVER_DEGRADAR
+
+### 30. DEGRADAR_USUARIO
+Permite degradar el rol del usuario
+
+    DEGRADAR_USUARIO:
+
+        mov rol_promover_degradar, 02h
+
+### 31. ESCRIBIR_PROMOVER_DEGRADAR
+Permite escribir en el archivo el nuevo rol del usuario
+
+    ESCRIBIR_PROMOVER_DEGRADAR:
+        mov AH, 42h
+        mov AL, 00h
+        mov BX, handle_usuarios
+        mov CX, 0000h
+        mov DX, offset_promover_degradar_usuario
+        int 21h
+    
+        mov BX, handle_usuarios
+        mov CX, 0001h
+        mov DX, offset rol_promover_degradar
+        mov AH, 40h
+        int 21h
+       
+       
+        mov BX, handle_usuarios
+        mov AH, 3eh
+        int 21h
+       
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 18h 
+        mov DL, 00h
+        int 10h
+        
+        mov DX, offset cadena_usuario_promovido_degradado
+        mov AH, 09h
+        int 21h
+       
+        mov AH, 01h
+        int 21h
+       
+        jmp FINAL_PROMOVER_DEGRADAR
+
+### 32. FINAL_LEER_USUARIO_PROMOVER_DEGRADAR
+Permite cerrar el archivo de usuarios
+
+    FINAL_LEER_USUARIO_PROMOVER_DEGRADAR:
+        
+        mov BX, handle_usuarios
+        mov AH, 3eh
+        int 21h
+        
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 18h ;fila
+        mov DL, 00h	;columna
+        int 10h
+        
+        mov DX, offset cadena_error_no_existe_usuario
+        mov AH, 09h
+        int 21h
+        
+        mov AH, 01h
+        int 21h
+        
+        jmp FINAL_PROMOVER_DEGRADAR
+
+### 33. FINAL_PROMOVER_DEGRADAR
+Permite saltar al menu principal 
+
+    FINAL_PROMOVER_DEGRADAR:
+        jmp MENU
+
+### 34. DESBLOQUEAR_USUARIO
+Permite mostrar las opciones para ingresar el usuario que se desea desbloquear
+
+    DESBLOQUEAR_USUARIO:
+
+        call limpiar_pantalla
+        
+        mov BX, offset buffer_desbloqueo_usuario
+        call limpiar_buffer
+        ;Poner cursor
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 00h ;fila
+        mov DL, 00h	;columna
+        int 10h	
+        
+        mov DX, offset cadena_titulo_desbloqueo_usuario
+        mov AH, 09h
+        int 21h
+        ;Poner cursor
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 02h ;fila
+        mov DL, 05h	;columna
+        int 10h	
+        
+        mov DX, offset cadena_ingrese_usuario
+        mov AH, 09h
+        int 21h
+        
+        mov AH, 0ah
+        mov DX, offset buffer_desbloqueo_usuario
+        int 21h
+        
+        mov AL, [buffer_desbloqueo_usuario+1]
+        mov AH, 00
+        mov SI, AX
+        mov DI, offset buffer_desbloqueo_usuario+2
+        add DI, SI
+        mov AL, 00
+        mov [DI], AL
+        
+        mov AH, 3dh
+        mov AL, 02h
+        mov DX, offset usuarios_archivo
+        int 21h
+        
+        mov handle_usuarios, AX
+
+### 35. LEER_USUARIO_DESBLOQUEO
+Permite iniciar la lectura del archivo para poder desbloquear el usuario
+
 LEER_USUARIO_DESBLOQUEO:
-	;Guardar pointer actual del archivo de usuarios
+
 	mov AH, 42h
 	mov AL, 01h
 	mov BX, handle_usuarios
@@ -1343,537 +1374,573 @@ LEER_USUARIO_DESBLOQUEO:
 	mov DX, 0000h
 	int 21h
 	mov offset_desbloque_usuario, AX
-	;leer usuario
+	
 	mov AH, 3fh
 	mov BX, handle_usuarios
 	mov CX, 2fh ;;se lee toda la estructura
 	mov DX, offset usuario_leido_aux
 	int 21h
-	;;error de lectura
-	;jc ERROR_LECTURA
+
 	cmp AX, 00h
 	je FINAL_LEER_USUARIO_DESBLOQUEO
 	mov CX, 0014h
 	mov SI, offset usuario_leido_aux
 	mov DI, offset [buffer_desbloqueo_usuario + 2]
-LOOP_COMPARAR_USUARIO_DESBLOQUEO:
-	mov AL, [SI]
-	cmp AL, [DI]
-	jne LEER_USUARIO_DESBLOQUEO
-	inc SI
-	inc DI
-	loop LOOP_COMPARAR_USUARIO_DESBLOQUEO
-	;;si llega aqui es porque el usuario coincide
-	;Mover a offset Guardado del usuario que coincide
-	add offset_desbloque_usuario, 002Eh
-	mov AH, 42h
-	mov AL, 00h
-	mov BX, handle_usuarios
-	mov CX, 0000h
-	mov DX, offset_desbloque_usuario
-	int 21h
-	;
-	;Escribir en el archivo
-	mov BX, handle_usuarios
-	mov CX, 0001h
-	mov DX, offset codigo_no_bloqueado
-	mov AH, 40h
-	int 21h
-	;
-	;Cerrar archivo
-	mov BX, handle_usuarios
-	mov AH, 3eh
-	int 21h
-	;Poner cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 18h ;fila
-	mov DL, 00h	;columna
-	int 10h
-	;Imprimir cadena de usuario bloqueado
-	mov DX, offset cadena_usuario_desbloqueado
-	mov AH, 09h
-	int 21h
-	;Esperar a presionar una tecla
-	mov AH, 01h
-	int 21h
-	;
-	jmp FINAL_DESBLOQUEO_USUARIO
-FINAL_LEER_USUARIO_DESBLOQUEO:
-	;Cerrar archivo
-	mov BX, handle_usuarios
-	mov AH, 3eh
-	int 21h
-	;Poner cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 18h ;fila
-	mov DL, 00h	;columna
-	int 10h
-	;Imprimir cadena de usuario bloqueado
-	mov DX, offset cadena_error_no_existe_usuario
-	mov AH, 09h
-	int 21h
-	;Esperar a presionar una tecla
-	mov AH, 01h
-	int 21h
-	;
-FINAL_DESBLOQUEO_USUARIO:
-	jmp MENU
 
-REPORTE_DEL_SISTEMA:
-	;Limpiar Pantalla
-	call limpiar_pantalla
-	;Guardar Fecha y hora actual
-	mov AH, 2ah
-	int 21h
-	mov dia_generacion, DL
-	mov mes_generacion, DH
-	mov anho_generacion, CX
-	;
-	mov AH, 2ch
-	int 21h
-	mov hora_generacion, CH
-	mov minutos_generacion, CL
-	mov segundos_generacion, DH
-	;Convertir fecha y hora de generacion a cadena
-	mov AH, 00h
-	mov AL, dia_generacion
-	mov DI, offset dia_cadena_generacion
-	mov CX, 02h
-	call numAstr
-	mov AH, 00h
-	mov AL, mes_generacion
-	mov DI, offset mes_cadena_generacion
-	mov CX, 02h
-	call numAstr
-	mov AX, anho_generacion
-	mov DI, offset anho_cadena_generacion
-	mov CX, 04h
-	call numAstr
-	mov AH, 00h
-	mov AL, hora_generacion
-	mov DI, offset hora_cadena_generacion
-	mov CX, 02h
-	call numAstr
-	mov AH, 00h
-	mov AL, minutos_generacion
-	mov DI, offset minutos_cadena_generacion
-	mov CX, 02h
-	call numAstr
-	mov AH, 00h
-	mov AL, segundos_generacion
-	mov DI, offset segundos_cadena_generacion
-	mov CX, 02h
-	call numAstr
-	;Convertir a fecha y hora de ingreso al Sistema a cadena
-	mov AX, dia_numero
-	mov DI, offset dia_cadena_ingreso
-	mov CX, 02h
-	call numAstr
-	mov AX, mes_numero
-	mov DI, offset mes_cadena_ingreso
-	mov CX, 02h
-	call numAstr
-	mov AX, ahno_numero
-	mov DI, offset anho_cadena_ingreso
-	mov CX, 04h
-	call numAstr
-	mov AX, hora_numero
-	mov DI, offset hora_cadena_ingreso
-	mov CX, 02h
-	call numAstr
-	mov AX, minutos_numero
-	mov DI, offset minutos_cadena_ingreso
-	mov CX, 02h
-	call numAstr
-	mov AX, segundos_numero
-	mov DI, offset segundos_cadena_ingreso
-	mov CX, 02h
-	call numAstr
-	;
-	;Limpiar nombre_usuario
-	mov CX, 14h
-	mov DI, offset nombre_usuario
-LIMPIAR_NOMBRE_USUARIO:
-	mov AL, 00h
-	mov [DI], AL
-	inc DI
-	loop LIMPIAR_NOMBRE_USUARIO
-	;Compiar nombre de Usuario
-	mov SI, offset buffer_entrada_usuario+1
-	mov CH, 00h
-	mov CL, [SI]
-	mov SI, offset buffer_entrada_usuario+2
-	mov DI, offset nombre_usuario
-COPIAR_NOMBRE_USUARIO:
-	mov AL, [SI]
-	mov [DI], AL
-	inc SI
-	inc DI
-	loop COPIAR_NOMBRE_USUARIO
-	;Crear archivo SYS.HTML
-	mov CX, 0000
-	mov DX, offset nombre_reporte_html
-	mov AH, 3ch
-	int 21h
-	mov handle_reporte_html, AX
-	;escribir encabezado del html en archivo
-	mov BX, handle_reporte_html
-	mov CX, 02B6h ;Cantida de bytes a escribir
-	mov DX, offset reporte_html
-	mov AH, 40h
-	int 21h
-	;;;;;;
+### 36. LOOP_COMPARAR_USUARIO_DESBLOQUEO
+Incia el ciclo para poder ir leyendo el archivo hasta encontrar el usuario que se desea desbloquear
+
+    LOOP_COMPARAR_USUARIO_DESBLOQUEO:
+        mov AL, [SI]
+        cmp AL, [DI]
+        jne LEER_USUARIO_DESBLOQUEO
+        inc SI
+        inc DI
+        loop LOOP_COMPARAR_USUARIO_DESBLOQUEO
+       
+        add offset_desbloque_usuario, 002Eh
+        mov AH, 42h
+        mov AL, 00h
+        mov BX, handle_usuarios
+        mov CX, 0000h
+        mov DX, offset_desbloque_usuario
+        int 21h
+       
+        mov BX, handle_usuarios
+        mov CX, 0001h
+        mov DX, offset codigo_no_bloqueado
+        mov AH, 40h
+        int 21h
+       
+        mov BX, handle_usuarios
+        mov AH, 3eh
+        int 21h
+       
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 18h ;fila
+        mov DL, 00h	;columna
+        int 10h
+      
+        mov DX, offset cadena_usuario_desbloqueado
+        mov AH, 09h
+        int 21h
+       
+        mov AH, 01h
+        int 21h
+        
+        jmp FINAL_DESBLOQUEO_USUARIO
+
+### 37. FINAL_LEER_USUARIO_DESBLOQUEO
+Muestra el mensaje de error si el usuario no existe 
+
+    FINAL_LEER_USUARIO_DESBLOQUEO:
+        
+        mov BX, handle_usuarios
+        mov AH, 3eh
+        int 21h
+       
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 18h 
+        mov DL, 00h	
+        int 10h
+        
+        mov DX, offset cadena_error_no_existe_usuario
+        mov AH, 09h
+        int 21h
+      
+        mov AH, 01h
+        int 21h
+        
+### 38. FINAL_DESBLOQUEO_USUARIO
+Permite retornar al menu del usuario
+
+    FINAL_DESBLOQUEO_USUARIO:
+        jmp MENU
+
+### 39. REPORTE_DEL_SISTEMA
+Permite generar el reporte del sistema
+
+    REPORTE_DEL_SISTEMA:
+        
+        call limpiar_pantalla
+        
+        mov AH, 2ah
+        int 21h
+        mov dia_generacion, DL
+        mov mes_generacion, DH
+        mov anho_generacion, CX
+        
+        mov AH, 2ch
+        int 21h
+        mov hora_generacion, CH
+        mov minutos_generacion, CL
+        mov segundos_generacion, DH
+        
+        mov AH, 00h
+        mov AL, dia_generacion
+        mov DI, offset dia_cadena_generacion
+        mov CX, 02h
+        call numAstr
+        mov AH, 00h
+        mov AL, mes_generacion
+        mov DI, offset mes_cadena_generacion
+        mov CX, 02h
+        call numAstr
+        mov AX, anho_generacion
+        mov DI, offset anho_cadena_generacion
+        mov CX, 04h
+        call numAstr
+        mov AH, 00h
+        mov AL, hora_generacion
+        mov DI, offset hora_cadena_generacion
+        mov CX, 02h
+        call numAstr
+        mov AH, 00h
+        mov AL, minutos_generacion
+        mov DI, offset minutos_cadena_generacion
+        mov CX, 02h
+        call numAstr
+        mov AH, 00h
+        mov AL, segundos_generacion
+        mov DI, offset segundos_cadena_generacion
+        mov CX, 02h
+        call numAstr
+        
+        mov AX, dia_numero
+        mov DI, offset dia_cadena_ingreso
+        mov CX, 02h
+        call numAstr
+        mov AX, mes_numero
+        mov DI, offset mes_cadena_ingreso
+        mov CX, 02h
+        call numAstr
+        mov AX, ahno_numero
+        mov DI, offset anho_cadena_ingreso
+        mov CX, 04h
+        call numAstr
+        mov AX, hora_numero
+        mov DI, offset hora_cadena_ingreso
+        mov CX, 02h
+        call numAstr
+        mov AX, minutos_numero
+        mov DI, offset minutos_cadena_ingreso
+        mov CX, 02h
+        call numAstr
+        mov AX, segundos_numero
+        mov DI, offset segundos_cadena_ingreso
+        mov CX, 02h
+        call numAstr
+
+        mov CX, 14h
+        mov DI, offset nombre_usuario
+
+### 40. LIMPIAR_NOMBRE_USUARIO
+Permite limpiar la cadena del usuario que se muestra en la pantalla 
+
+    LIMPIAR_NOMBRE_USUARIO:
+        mov AL, 00h
+        mov [DI], AL
+        inc DI
+        loop LIMPIAR_NOMBRE_USUARIO
+       
+        mov SI, offset buffer_entrada_usuario+1
+        mov CH, 00h
+        mov CL, [SI]
+        mov SI, offset buffer_entrada_usuario+2
+        mov DI, offset nombre_usuario
+
+### 41. COPIAR_NOMBRE_USUARIO
+Permite copiar el nombre del usuario al reporte
+
+    COPIAR_NOMBRE_USUARIO:
+
+        mov AL, [SI]
+        mov [DI], AL
+        inc SI
+        inc DI
+        loop COPIAR_NOMBRE_USUARIO
+        
+        mov CX, 0000
+        mov DX, offset nombre_reporte_html
+        mov AH, 3ch
+        int 21h
+        mov handle_reporte_html, AX
+        
+        mov BX, handle_reporte_html
+        mov CX, 02B6h ;Cantida de bytes a escribir
+        mov DX, offset reporte_html
+        mov AH, 40h
+        int 21h
+
+        mov BX, handle_reporte_html
+        mov CX, 0018h
+        mov DX, offset titulo_tabla_usuarios_activos
+        mov AH, 40h
+        int 21h
+     
+        mov BX, handle_reporte_html
+        mov CX, 0061h
+        mov DX, offset inicio_tabla_usuarios
+        mov AH, 40h
+        int 21h
+
+        mov AH, 3dh
+        mov AL, 00h
+        mov DX, offset usuarios_archivo
+        int 21h
+      
+        mov handle_usuarios, AX
+
+### 42. LEER_USUARIO_TABLA
+Permite escribir las filas de la tabla del reporte 
+
+    LEER_USUARIO_TABLA:
+        
+        mov AH, 3fh
+        mov BX, handle_usuarios
+        mov CX, 2fh ;;se lee toda la estructura
+        mov DX, offset usuario_leido_aux
+        int 21h
+        
+        cmp AX, 00h
+        je FIN_LEER_USUARIOS_TABLA
+        
+        mov AL, estado_usuario_aux
+        cmp AL, 01h
+        je LEER_USUARIO_TABLA
+        
+        mov BX, handle_reporte_html
+        mov CX, 0009h
+        mov DX, offset abre_fila_tabla_usuarios
+        mov AH, 40h
+        int 21h
+        
+        mov BX, handle_reporte_html
+        mov CX, 0014h
+        mov DX, offset usuario_leido_aux
+        mov AH, 40h
+        int 21h
+        
+        mov BX, handle_reporte_html
+        mov CX, 000Ah
+        mov DX, offset cierra_columna_tabla_usuarios
+        mov AH, 40h
+        int 21h
+       
+        mov SI, offset password_usuario_aux
+        mov CX, 0019h
+
+### 43. LOOP_ESCRIBIR_PASSWORD
+Permite escribir el password en forma de *
+
+    LOOP_ESCRIBIR_PASSWORD:
+        mov AL, 00h
+        cmp [SI], AL
+        je FIN_ESCRIBIR_PASSWORD
+       
+        push CX
+       
+        mov BX, handle_reporte_html
+        mov CX, 0001h
+        mov DX, offset asterisco
+        mov AH, 40h
+        int 21h
+        inc SI
+       
+        pop CX
+        loop LOOP_ESCRIBIR_PASSWORD
+
+### 44. FIN_ESCRIBIR_PASSWORD
+Permite escribir el final de la tabla de donde va los datos del usuario y la contraseña
+
+    FIN_ESCRIBIR_PASSWORD:
+        
+        mov BX, handle_reporte_html
+        mov CX, 000Bh
+        mov DX, offset cierra_fila_tabla_usuarios
+        mov AH, 40h
+        int 21h
+        jmp LEER_USUARIO_TABLA
+
+### 45. FIN_LEER_USUARIOS_TABLA
+Finaliza la escritura de la tabla en el reporte y agrega los titulos de los demas usuarios
+
+    FIN_LEER_USUARIOS_TABLA:
+        ;cerrar archivo
+        mov BX, handle_usuarios
+        mov AH, 3eh
+        int 21h
+
+        mov BX, handle_reporte_html
+        mov CX, 0010h
+        mov DX, offset fin_tabla_usuarios
+        mov AH, 40h
+        int 21h
+
+        mov BX, handle_reporte_html
+        mov CX, 001Fh
+        mov DX, offset titulo_tabla_usuarios_deshabilitados
+        mov AH, 40h
+        int 21h
+        ;Inicio Tabla de usuarios Activos
+        mov BX, handle_reporte_html
+        mov CX, 0061h
+        mov DX, offset inicio_tabla_usuarios
+        mov AH, 40h
+        int 21h
+
+        ;Abrir Archivo de Usuarios
+        mov AH, 3dh
+        mov AL, 00h
+        mov DX, offset usuarios_archivo
+        int 21h
+        ;error de apertura
+        ;jc ERROR_APERTURA
+        mov handle_usuarios, AX
+
+### 46. FIN_LEER_USUARIOS_TABLA
+Permite finalizar la leida de la tabla y terminar de escribir los usuarios en la tabla
+
+    LEER_USUARIO_TABLA_INACTIVOS:
+       
+        mov AH, 3fh
+        mov BX, handle_usuarios
+        mov CX, 2fh ;;se lee toda la estructura
+        mov DX, offset usuario_leido_aux
+        int 21h
+       
+        cmp AX, 00h
+        je FIN_LEER_USUARIOS_TABLA_INACTIVOS
+       
+        mov AL, estado_usuario_aux
+        cmp AL, 00h
+        je LEER_USUARIO_TABLA_INACTIVOS
+       
+        mov BX, handle_reporte_html
+        mov CX, 0009h
+        mov DX, offset abre_fila_tabla_usuarios
+        mov AH, 40h
+        int 21h
+        
+        mov BX, handle_reporte_html
+        mov CX, 0014h
+        mov DX, offset usuario_leido_aux
+        mov AH, 40h
+        int 21h
+        
+        mov BX, handle_reporte_html
+        mov CX, 000Ah
+        mov DX, offset cierra_columna_tabla_usuarios
+        mov AH, 40h
+        int 21h
+        
+        mov SI, offset password_usuario_aux
+        mov CX, 0019h
+    
+### 47. LOOP_ESCRIBIR_PASSWORD_INACTIVOS
+Permite escribir el password de los usuarios incactivos en forma de *
+
+    LOOP_ESCRIBIR_PASSWORD_INACTIVOS:
+
+        mov AL, 00h
+        cmp [SI], AL
+        je FIN_ESCRIBIR_PASSWORD_INACTIVOS
+       
+        push CX
+        
+        mov BX, handle_reporte_html
+        mov CX, 0001h
+        mov DX, offset asterisco
+        mov AH, 40h
+        int 21h
+        inc SI
+        
+        pop CX
+        loop LOOP_ESCRIBIR_PASSWORD_INACTIVOS
+
+### 48. FIN_ESCRIBIR_PASSWORD_INACTIVOS
+Agrega el password de los usuarios iniactivos ya convertido en *
+
+    FIN_ESCRIBIR_PASSWORD_INACTIVOS:
+        ;Escribir en archivo de reporte de sistema cierra_fila_tabla_usuarios
+        mov BX, handle_reporte_html
+        mov CX, 000Bh
+        mov DX, offset cierra_fila_tabla_usuarios
+        mov AH, 40h
+        int 21h
+        jmp LEER_USUARIO_TABLA_INACTIVOS
+    
+### 49. FIN_LEER_USUARIOS_TABLA_INACTIVOS
+Cierra el archivo de los usuarios y termina de llenar la tabla de usuario inactivos
+
+    FIN_LEER_USUARIOS_TABLA_INACTIVOS:
+       
+        mov BX, handle_usuarios
+        mov AH, 3eh
+        int 21h
+
+      
+        mov BX, handle_reporte_html
+        mov CX, 0010h
+        mov DX, offset fin_tabla_usuarios
+        mov AH, 40h
+        int 21h
+
+        mov BX, handle_reporte_html
+        mov CX, 001Ch
+        mov DX, offset titulo_tabla_partidas
+        mov AH, 40h
+        int 21h
+       
+        mov BX, handle_reporte_html
+        mov CX, 0073h
+        mov DX, offset inicio_tabla_puntaje
+        mov AH, 40h
+        int 21h
+      
+        mov AH, 3dh
+        mov AL, 00h
+        mov DX, offset nombre_archivo_puntajes
+        int 21h
+       
+        mov handle_puntajes, AX
+        
+        mov AH, 42h
+        mov AL, 02h
+        mov BX, handle_puntajes
+        mov CX, 0000h
+        mov DX, 0000h
+        int 21h
+        
+        cmp AX, 0000h
+        je FIN_LEER_PUNTAJES
+       
+        mov offset_archivo, AX
+
+### 50. LEER_PUNTAJES_TABLA
+Permite abrir el archivo para leer el archivo de los puntajes
+
+    LEER_PUNTAJES_TABLA:
+   
+        sub offset_archivo, 001Dh
+       
+        mov AH, 42h
+        mov AL, 00h
+        mov BX, handle_puntajes
+        mov CX, 0000h
+        mov DX, offset_archivo
+        int 21h
+        
+        mov AH, 3fh
+        mov BX, handle_puntajes
+        mov CX, 001Dh 
+        mov DX, offset usuario_puntaje
+        int 21h
+       
+        mov SI, offset usuario_puntaje
+        mov DI, offset usuario_tabla_puntaje
+        mov CX, 0014h
+    
+### 51. LOOP_COPIAR_USUARIO_PUNTAJE
+Permite comenzar a leer el archivo de puntajes
+
+    LOOP_COPIAR_USUARIO_PUNTAJE:
+        mov AL, [SI]
+        mov [DI], AL
+        inc SI
+        inc DI
+        loop LOOP_COPIAR_USUARIO_PUNTAJE
+       
+        mov AX, puntaje_usuario
+        mov DI, offset puntuacion_tabla
+        mov CX, 05h
+        call numAstr
+        
+        mov AX, hora_partida_puntaje
+        mov DI, offset hora_tabla
+        mov CX, 02h
+        call numAstr
+       
+        mov AX, minuto_partida_puntaje
+        mov DI, offset minuto_tabla
+        mov CX, 02h
+        call numAstr
+      
+        mov AX, segundo_partida_puntaje
+        mov DI, offset segundo_tabla
+        mov CX, 02h
+        call numAstr
+       
+        mov BX, handle_reporte_html
+        mov CX, 004Ah
+        mov DX, offset fila_tabla_puntaje
+        mov AH, 40h
+        int 21h
+       
+        cmp offset_archivo, 0000h
+        jne LEER_PUNTAJES_TABLA
+
+### 52. FIN_LEER_PUNTAJES
+Cierra el archivo de los puntajes y termina la tabla de las  ultimas 15 partidas
+
+    FIN_LEER_PUNTAJES:
+        ;cerrar archivo puntajes
+        mov BX, handle_puntajes
+        mov AH, 3eh
+        int 21h
+
+        ;Final Tabla Ultimas 15 Partidas
+        mov BX, handle_reporte_html
+        mov CX, 0010h
+        mov DX, offset fin_tabla_puntaje
+        mov AH, 40h
+        int 21h
 
 
-;;Inicio Tabla de Usuario Activos-----------------------------
-	;Titulo de la Tabla	
-	mov BX, handle_reporte_html
-	mov CX, 0018h
-	mov DX, offset titulo_tabla_usuarios_activos
-	mov AH, 40h
-	int 21h
-	;Inicio Tabla de usuarios Activos
-	mov BX, handle_reporte_html
-	mov CX, 0061h
-	mov DX, offset inicio_tabla_usuarios
-	mov AH, 40h
-	int 21h
+        mov BX, handle_reporte_html
+        mov CX, 0018h
+        mov DX, offset titulo_tabla_top
+        mov AH, 40h
+        int 21h
 
-	;Abrir Archivo de Usuarios
-	mov AH, 3dh
-	mov AL, 00h
-	mov DX, offset usuarios_archivo
-	int 21h
-	;error de apertura
-	;jc ERROR_APERTURA
-	mov handle_usuarios, AX
+        ;IR A ORDENAMIENTO
+        mov parametro_puntaje, '1' ;;Ordenar por Puntaje
+        mov orientacion_puntaje, '2' ;;Ordenar de Mayor a Menor
+        mov bandera_solo_ordenamiento, 01h
+        jmp SEGUIR_ORDENAMIENTO
 
-	;Leer los Usuarios
-LEER_USUARIO_TABLA:
-	;leer usuario
-	mov AH, 3fh
-	mov BX, handle_usuarios
-	mov CX, 2fh ;;se lee toda la estructura
-	mov DX, offset usuario_leido_aux
-	int 21h
-	;Si leyo 0 bytes termina el ciclo
-	cmp AX, 00h
-	je FIN_LEER_USUARIOS_TABLA
-	;Verifica si el usuario esta activo
-	mov AL, estado_usuario_aux
-	cmp AL, 01h
-	je LEER_USUARIO_TABLA
-	;Escribir en archivo de reporte de sistema abre_fila_tabla_usuarios
-	mov BX, handle_reporte_html
-	mov CX, 0009h
-	mov DX, offset abre_fila_tabla_usuarios
-	mov AH, 40h
-	int 21h
-	;Escribir en archivo de reporte de sistema usuario_leido_aux
-	mov BX, handle_reporte_html
-	mov CX, 0014h
-	mov DX, offset usuario_leido_aux
-	mov AH, 40h
-	int 21h
-	;Escribir en archivo de reporte de sistema cierra_columna_tabla_usuarios
-	mov BX, handle_reporte_html
-	mov CX, 000Ah
-	mov DX, offset cierra_columna_tabla_usuarios
-	mov AH, 40h
-	int 21h
-	;Escribir la password pero convertida en ******
-	mov SI, offset password_usuario_aux
-	mov CX, 0019h
-LOOP_ESCRIBIR_PASSWORD:
-	mov AL, 00h
-	cmp [SI], AL
-	je FIN_ESCRIBIR_PASSWORD
-	;Escribir '*' en el archivo de reporte de sistema
-	push CX
-	;
-	mov BX, handle_reporte_html
-	mov CX, 0001h
-	mov DX, offset asterisco
-	mov AH, 40h
-	int 21h
-	inc SI
-	;
-	pop CX
-	loop LOOP_ESCRIBIR_PASSWORD
+### 53. REGREAR_REPORTE_SISTEMA
+Permite iniciar el reporte del sistema
 
-FIN_ESCRIBIR_PASSWORD:
-	;Escribir en archivo de reporte de sistema cierra_fila_tabla_usuarios
-	mov BX, handle_reporte_html
-	mov CX, 000Bh
-	mov DX, offset cierra_fila_tabla_usuarios
-	mov AH, 40h
-	int 21h
-	jmp LEER_USUARIO_TABLA
+    REGREAR_REPORTE_SISTEMA:
+        mov bandera_solo_ordenamiento, 00h
+        
+        mov BX, handle_reporte_html
+        mov CX, 0073h
+        mov DX, offset inicio_tabla_puntaje
+        mov AH, 40h
+        int 21h
+        
+        cmp cantidad_puntajes_leidos, 00
+        je TERMINA_TABLA_TOP
+       
+        mov offset_lista_puntajes, offset lista_puntajes
+        mov CH, 00h
+        mov CL, cantidad_puntajes_leidos
 
-FIN_LEER_USUARIOS_TABLA:
-	;cerrar archivo
-	mov BX, handle_usuarios
-	mov AH, 3eh
-	int 21h
+### 54. LOOP_CREAR_HTML_USUARIO
+Inicia el loop para mostrar la lista de puntajes y las tablas
 
-	;Fin Tabla de Usuarios Activos
-	mov BX, handle_reporte_html
-	mov CX, 0010h
-	mov DX, offset fin_tabla_usuarios
-	mov AH, 40h
-	int 21h
-
-;;FIN Tabla de Usuario Activos-----------------------------
+    LOOP_CREAR_HTML_USUARIO:
+        push CX
+        
+        mov SI, offset_lista_puntajes
+        mov DI, offset usuario_tabla_puntaje
+        mov CX, 0014h	
 
 
-
-;;Inicio Tabla de Usuario Inactivos-----------------------------
-	;Titulo de la Tabla	
-	mov BX, handle_reporte_html
-	mov CX, 001Fh
-	mov DX, offset titulo_tabla_usuarios_deshabilitados
-	mov AH, 40h
-	int 21h
-	;Inicio Tabla de usuarios Activos
-	mov BX, handle_reporte_html
-	mov CX, 0061h
-	mov DX, offset inicio_tabla_usuarios
-	mov AH, 40h
-	int 21h
-
-	;Abrir Archivo de Usuarios
-	mov AH, 3dh
-	mov AL, 00h
-	mov DX, offset usuarios_archivo
-	int 21h
-	;error de apertura
-	;jc ERROR_APERTURA
-	mov handle_usuarios, AX
-
-	;Leer los Usuarios
-LEER_USUARIO_TABLA_INACTIVOS:
-	;leer usuario
-	mov AH, 3fh
-	mov BX, handle_usuarios
-	mov CX, 2fh ;;se lee toda la estructura
-	mov DX, offset usuario_leido_aux
-	int 21h
-	;Si leyo 0 bytes termina el ciclo
-	cmp AX, 00h
-	je FIN_LEER_USUARIOS_TABLA_INACTIVOS
-	;Verifica si el usuario esta activo
-	mov AL, estado_usuario_aux
-	cmp AL, 00h
-	je LEER_USUARIO_TABLA_INACTIVOS
-	;Escribir en archivo de reporte de sistema abre_fila_tabla_usuarios
-	mov BX, handle_reporte_html
-	mov CX, 0009h
-	mov DX, offset abre_fila_tabla_usuarios
-	mov AH, 40h
-	int 21h
-	;Escribir en archivo de reporte de sistema usuario_leido_aux
-	mov BX, handle_reporte_html
-	mov CX, 0014h
-	mov DX, offset usuario_leido_aux
-	mov AH, 40h
-	int 21h
-	;Escribir en archivo de reporte de sistema cierra_columna_tabla_usuarios
-	mov BX, handle_reporte_html
-	mov CX, 000Ah
-	mov DX, offset cierra_columna_tabla_usuarios
-	mov AH, 40h
-	int 21h
-	;Escribir la password pero convertida en ******
-	mov SI, offset password_usuario_aux
-	mov CX, 0019h
-LOOP_ESCRIBIR_PASSWORD_INACTIVOS:
-	mov AL, 00h
-	cmp [SI], AL
-	je FIN_ESCRIBIR_PASSWORD_INACTIVOS
-	;Escribir '*' en el archivo de reporte de sistema
-	push CX
-	;
-	mov BX, handle_reporte_html
-	mov CX, 0001h
-	mov DX, offset asterisco
-	mov AH, 40h
-	int 21h
-	inc SI
-	;
-	pop CX
-	loop LOOP_ESCRIBIR_PASSWORD_INACTIVOS
-
-FIN_ESCRIBIR_PASSWORD_INACTIVOS:
-	;Escribir en archivo de reporte de sistema cierra_fila_tabla_usuarios
-	mov BX, handle_reporte_html
-	mov CX, 000Bh
-	mov DX, offset cierra_fila_tabla_usuarios
-	mov AH, 40h
-	int 21h
-	jmp LEER_USUARIO_TABLA_INACTIVOS
-
-FIN_LEER_USUARIOS_TABLA_INACTIVOS:
-	;cerrar archivo
-	mov BX, handle_usuarios
-	mov AH, 3eh
-	int 21h
-
-	;Fin Tabla de Usuarios Activos
-	mov BX, handle_reporte_html
-	mov CX, 0010h
-	mov DX, offset fin_tabla_usuarios
-	mov AH, 40h
-	int 21h
-
-;;FIN Tabla de Usuario Activos-----------------------------
-
-
-;;Inicio Tabla Ultimas 15 Partidas-----------------------------
-
-	;Escribir Titulo de tabla de Ultimas 15 Partidas
-	mov BX, handle_reporte_html
-	mov CX, 001Ch
-	mov DX, offset titulo_tabla_partidas
-	mov AH, 40h
-	int 21h
-	;Inicio Tabla de Ultimas 15 Partidas
-	mov BX, handle_reporte_html
-	mov CX, 0073h
-	mov DX, offset inicio_tabla_puntaje
-	mov AH, 40h
-	int 21h
-	;
-	;Abrir Archivo de Puntaje
-	mov AH, 3dh
-	mov AL, 00h
-	mov DX, offset nombre_archivo_puntajes
-	int 21h
-	;error de apertura
-	;jc ERROR_APERTURA
-	mov handle_puntajes, AX
-	;Mover puntero hasta el final del archivo
-	mov AH, 42h
-	mov AL, 02h
-	mov BX, handle_puntajes
-	mov CX, 0000h
-	mov DX, 0000h
-	int 21h
-	;offset en -> DX:Ax
-	cmp AX, 0000h
-	je FIN_LEER_PUNTAJES
-	;
-	;Leer los Puntajes
-	mov offset_archivo, AX
-LEER_PUNTAJES_TABLA:
-	;Restar 28 offset_archivo
-	sub offset_archivo, 001Dh
-	;Mover puntero al nuevo offset
-	mov AH, 42h
-	mov AL, 00h
-	mov BX, handle_puntajes
-	mov CX, 0000h
-	mov DX, offset_archivo
-	int 21h
-	;Leer Puntaje
-	mov AH, 3fh
-	mov BX, handle_puntajes
-	mov CX, 001Dh ;;se lee toda la estructura
-	mov DX, offset usuario_puntaje
-	int 21h
-	;Copiar usuario_puntaje a usuario_tabla_puntaje
-	mov SI, offset usuario_puntaje
-	mov DI, offset usuario_tabla_puntaje
-	mov CX, 0014h
-LOOP_COPIAR_USUARIO_PUNTAJE:
-	mov AL, [SI]
-	mov [DI], AL
-	inc SI
-	inc DI
-	loop LOOP_COPIAR_USUARIO_PUNTAJE
-	;Convertir a cadena el puntaje y guardarlo en puntuacion tabla
-	mov AX, puntaje_usuario
-	mov DI, offset puntuacion_tabla
-	mov CX, 05h
-	call numAstr
-	;Convertir a cadena hora de la partida
-	mov AX, hora_partida_puntaje
-	mov DI, offset hora_tabla
-	mov CX, 02h
-	call numAstr
-	;Convertir a cadena minutos de la partida
-	mov AX, minuto_partida_puntaje
-	mov DI, offset minuto_tabla
-	mov CX, 02h
-	call numAstr
-	;Convertir a cadena segundos de la partida
-	mov AX, segundo_partida_puntaje
-	mov DI, offset segundo_tabla
-	mov CX, 02h
-	call numAstr
-	;	
-	;Escribir en el archivo de Reporte de Sistema fila_tabla_puntaje
-	mov BX, handle_reporte_html
-	mov CX, 004Ah
-	mov DX, offset fila_tabla_puntaje
-	mov AH, 40h
-	int 21h
-	;
-	cmp offset_archivo, 0000h
-	jne LEER_PUNTAJES_TABLA
-
-
-FIN_LEER_PUNTAJES:
-	;cerrar archivo puntajes
-	mov BX, handle_puntajes
-	mov AH, 3eh
-	int 21h
-
-	;Final Tabla Ultimas 15 Partidas
-	mov BX, handle_reporte_html
-	mov CX, 0010h
-	mov DX, offset fin_tabla_puntaje
-	mov AH, 40h
-	int 21h
-
-
-;;Final Tabla Ultimas 15 Partidas-----------------------------
-
-
-;;Inicio Tabla Top 10 Puntajes-----------------------------
-	;Escribir titutlo de tabla de Top 10 Puntajes
-	mov BX, handle_reporte_html
-	mov CX, 0018h
-	mov DX, offset titulo_tabla_top
-	mov AH, 40h
-	int 21h
-	;IR A ORDENAMIENTO
-	mov parametro_puntaje, '1' ;;Ordenar por Puntaje
-	mov orientacion_puntaje, '2' ;;Ordenar de Mayor a Menor
-	mov bandera_solo_ordenamiento, 01h
-	jmp SEGUIR_ORDENAMIENTO
-REGREAR_REPORTE_SISTEMA:
-	mov bandera_solo_ordenamiento, 00h
-	;Inicio Tabla de Top 10 Puntajes
-	mov BX, handle_reporte_html
-	mov CX, 0073h
-	mov DX, offset inicio_tabla_puntaje
-	mov AH, 40h
-	int 21h
-	;
-	cmp cantidad_puntajes_leidos, 00
-	je TERMINA_TABLA_TOP
-	;Crear HTML para cada usuario de la lista_puntajes
-	mov offset_lista_puntajes, offset lista_puntajes
-	mov CH, 00h
-	mov CL, cantidad_puntajes_leidos
-LOOP_CREAR_HTML_USUARIO:
-	push CX
-	;Copiar usuario de lista_puntajes a usuario_tabla_puntaje
-	mov SI, offset_lista_puntajes
-	mov DI, offset usuario_tabla_puntaje
-	mov CX, 0014h	
 COPIAR_USUARIO_TOP:
 	mov AL, [SI]
 	mov [DI], AL
@@ -2993,15 +3060,17 @@ DETECTAR_TECLA:
 
 	mov AH, 01h 
 	int 16h
+
 	jz FIN_DETECTAR_TECLA
-	;;se coloca en mapa la acera o carril dependiendo la fila del jugador
 	mov AL, columna_jugador
 	mov AH, fila_jugador
 	cmp fila_jugador, 01h
+
 	je PINTAR_ACERA_JUGADOR
 	cmp fila_jugador, 17h
 	je PINTAR_ACERA_JUGADOR
 	mov BL, CARRIL
+
 	call COLOCAR_EN_MAPA
 	jmp MOVIMIENTO
 
@@ -3711,6 +3780,7 @@ ciclo_columnas:
 ;;  - DI - y
 ;;  - CL - color 
 ;; SALIDA:
+
 pintar_pixel:
 		;; DS tiene cierto valor
 		;; se preservó DS
@@ -3756,264 +3826,3 @@ ciclo_limpiar_pantalla:
 		int 21
 		loop ciclo_limpiar_pantalla
 		ret
-
-;; numAstr - convierte un número entero en cadena
-;;     Entrada: AX -> numero de entrada
-;;				DI -> offset de la cadena
-;;				CX -> tamaño de la cadena
-;;     Salida:  offset de la cadena -> el número convertido a cadena
-numAstr:         
-    mov BX, DI ;;direccion cadena resultado
-    mov DX, 0030h
-limpiar:        
-    mov [BX], DL
-    inc BX
-    loop limpiar
-    dec BX                   ;;; Posicionarse en el caracter de las unidades
-    cmp AX, 0000h            ;;; Si el número es 0 no hacer nada
-    je retorno
-	jg unidad
-	neg AX
-	mov DL, 2d
-    mov BX, DI
-	mov [BX], DL
-unidad:         
-    mov DL,[BX]              ;;; Incrementar las unidades
-    inc DL
-    mov [BX],DL
-    dec AX                   ;;; Decrementar el número de entrada
-    mov SI, BX               ;;; Guardar el dato de la posición de las unidades en otro registro
-revisar_cifra:  
-    mov DX, 3ah              ;;; Si en las unidades está el caracter 3Ah o :
-    cmp [BX], DL
-    je incrementa_ant        ;;; Saltar a la parte donde se incrementa la cifra anterior
-    mov BX, SI               ;;; Restablecer la posición de las unidades en el registro original
-    cmp AX, 0000h            ;;; Si el número de entrada no es 0
-    jne unidad               ;;; Volver a incrementar unidades
-    jmp retorno              ;;; Si no terminar rutina
-incrementa_ant: 
-    mov DX, 30h              ;;; Se coloca el caracter '0' en la cifra actual
-    mov [BX], DL
-    dec BX                   ;;; Se mueve el índice a la cifra anterior
-    mov DL, [BX]             ;;; Se incrementa la cifra indexada por BX
-    inc DL
-    mov [BX], DL
-    cmp BX, DI    			;;; Si el índice actual no es la direccion de la primera cifra
-    jne revisar_cifra        ;;; revisar la cifra anterior para ver si nuevamente hay que incrementarla
-    mov BX, SI               ;;; Reestablecer la posición de las unidades en el registro original
-    cmp AX, 0000h            ;;; Si el número de entrada no es 0
-    jne unidad               ;;; Volver a incrementar unidades
-retorno:        
-    ret                      ;;; Si no retornar
-
-;;imprime el cadena_punteo en pantalla
-imprimir_cadena_punteo:
-	;;Se mueven los parametros de la funcion
-	mov AX, punteo_actual		;;la cantidad
-	mov DI, offset cadena_punteo ;;la cadena de salida
-	mov CX, 05h					;; tamaño de cadena de salida
-	call numAstr
-	mov DH, 00 ;; y fila
-	mov DL, 00 ;; x col
-	mov BH, 00
-	mov AH, 02
-	int 10h
-
-	mov DX, offset cadena_punteo
-	mov AH, 09
-	int 21
-	ret
-
-
-;;segun el numero de vidas se imprime el caracter de vida o no vida
-imprimir_vidas:
-	mov DH, 00 ;; y fila
-	mov DL, 10 ;; x coL
-	mov BH, 00
-	mov AH, 02 ;; interrupcion
-	int 10h
-	;;
-	mov CX, 00h
-	mov CL, 03h
-	;;
-	mov SI, vidas; le pasa un 02
-ciclo_imp_vidas: ;;0
-	cmp SI, 00h
-	ja imprimir_vida
-	mov DX, offset novida_caracter
-	mov AH, 09
-	int 21
-	jmp ciclo
-imprimir_vida:
-	mov DX, offset vida_caracter
-	mov AH, 09
-	int 21
-	dec SI
-ciclo:
-	loop ciclo_imp_vidas
-	ret
-
-
-;;imprime el tiempo en pantalla
-imprimir_tiempo:
-	;;Se mueven los parametros de la funcion
-	mov AX, conthora		;;la cantidad
-	mov DI, offset horas ;;la cadena de salida
-	mov CX, 02h					;; tamaño de cadena de salida
-	call numAstr
-
-	mov AX, contminuto		;;la cantidad
-	mov DI, offset minutos ;;la cadena de salida
-	mov CX, 02h					;; tamaño de cadena de salida
-	call numAstr
-
-	mov AX, contsegundo		;;la cantidad
-	mov DI, offset segundos ;;la cadena de salida
-	mov CX, 02h					;; tamaño de cadena de salida
-	call numAstr
-
-
-	mov DH, 00 ;; y fila
-	mov DL, 20;; x col
-	mov BH, 00
-	mov AH, 02
-	int 10h
-
-	mov DX, offset horas
-	mov AH, 09
-	int 21
-	ret
-
-;;imprime el usuario en pantalla
-imprimir_usuario_footer:
-	mov DH, 18 ;; y fila
-	mov DL, 00;; x col
-	mov BH, 00
-	mov AH, 02
-	int 10h
-
-	;;buffer usuario
-	mov BX, offset buffer_entrada_usuario
-	mov CL, [BX + 1]
-	mov CH, 00
-	;;
-	add BX, 02h
-	;;
-	add BX, CX
-	;;
-	mov AL, '$'
-	mov [BX], AL
-
-
-	mov DX, offset buffer_entrada_usuario + 2
-	mov AH, 09
-	int 21
-	ret
-
-
-;;imprime la fecha en pantalla
-imprimir_fechahora_footer:
-	;;Se mueven los parametros de la funcion
-	mov AX, dia_numero		;;la cantidad
-	mov DI, offset dia_cadena ;;la cadena de salida
-	mov CX, 02h					;; tamaño de cadena de salida
-	call numAstr
-
-	mov AX, mes_numero		;;la cantidad
-	mov DI, offset mes_cadena ;;la cadena de salida
-	mov CX, 02h					;; tamaño de cadena de salida
-	call numAstr
-
-	mov AX, ahno_numero		;;la cantidad
-	mov DI, offset anho_cadena ;;la cadena de salida
-	mov CX, 04h					;; tamaño de cadena de salida
-	call numAstr
-
-	mov AX, hora_numero		;;la cantidad
-	mov DI, offset hora_cadena ;;la cadena de salida
-	mov CX, 02h					;; tamaño de cadena de salida
-	call numAstr
-
-	mov AX, minutos_numero		;;la cantidad
-	mov DI, offset minutos_cadena ;;la cadena de salida
-	mov CX, 02h					;; tamaño de cadena de salida
-	call numAstr
-
-	mov AX, segundos_numero		;;la cantidad
-	mov DI, offset segundos_cadena ;;la cadena de salida
-	mov CX, 02h					;; tamaño de cadena de salida
-	call numAstr
-
-	mov DH, 18;; y fila
-	mov DL, 14;; x col
-	mov BH, 00
-	mov AH, 02
-	int 10h
-
-	mov DX, offset dia_cadena
-	mov AH, 09
-	int 21
-
-	ret
-
-;;imprime el game over en pantalla
-imprimir_gameover:
-	mov DH, 0b ;; y fila
-	mov DL, 0f;; x col
-	mov BH, 00
-	mov AH, 02
-	int 10h
-
-	mov DX, offset gameover_cadena
-	mov AH, 09
-	int 21
-
-	;;mostrar puntaje
-	mov DH, 0c ;; y fila
-	mov DL, 12; x col
-	mov BH, 00
-	mov AH, 02
-	int 10h
-
-	mov DX, offset cadena_punteo
-	mov AH, 09
-	int 21
-
-	;;reiniciar variables juego
-	mov vidas, 03h
-	mov punteo_actual, 0000h
-	mov conthora, 00h
-	mov contminuto, 00h
-	mov contsegundo, 00h
-	mov semilla_random, 01h
-
-	MOV SI, 2710h
-e2:	
-	DEC SI
-	JZ e3
-	MOV DI, 222Eh
-e1:		
-	DEC DI
-	JNZ e1
-	JMP e2
-e3:
-	ret
-
-;;BX -> Offset buffer
-
-limpiar_buffer:
-	mov CH, 00
-	mov CL, [BX]
-	add BX, 02h
-
-ciclo_limpiar_buffer:
-	mov AL, 00h
-	mov [BX], AL
-	inc BX
-	loop ciclo_limpiar_buffer
-	ret
-FINAL_PROGRAMA:
-	call limpiar_pantalla
-
-.EXIT
-END  
