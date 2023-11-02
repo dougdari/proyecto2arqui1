@@ -795,7 +795,6 @@ REGISTRO:
 	mov AH, 09h
 	int 21h
 
-;;------------------------------------USUARIO------------------------------------
 	;;colocar cursor en la posicion fila, col -> 08h, 06h
 	mov AH, 02h
 	mov BH, 00h

@@ -468,338 +468,309 @@ Muestra el mensaje de error de la longitud del password
 ### 7. Error_caracteres_no_validos_password
 Muestra el mensaje de error cuando se ingresan caracteres no validos en el password
 
-ERROR_CARACTERES_NO_VALIDOS_PASSWORD:
+    ERROR_CARACTERES_NO_VALIDOS_PASSWORD:
 
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 17h ;;fila
-	mov DL, 00h ;;columna
-	int 10h
-	mov DX, offset cadena_error_caracteres_no_validos_password
-	mov AH, 09h
-	int 21h
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 17h ;;fila
+        mov DL, 00h ;;columna
+        int 10h
+        mov DX, offset cadena_error_caracteres_no_validos_password
+        mov AH, 09h
+        int 21h
 
-	;;esperar a presionar una tecla
-	mov AH, 01h
-	int 21h
+        ;;esperar a presionar una tecla
+        mov AH, 01h
+        int 21h
 
-	jmp REGISTRO
+        jmp REGISTRO
 
-ERROR_CARACTERES_REQUISITOS_DE_CARACTERES:
+### 8. Error_Usuario_Existe
+Muestra el mensaje de error cuando se intenta usar un nombre de usuario ya en uso
 
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 17h ;;fila
-	mov DL, 00h ;;columna
-	int 10h
-	mov DX, offset cadena_error_caracteres_requisitos_de_caracteres
-	mov AH, 09h
-	int 21h
+    ERROR_USUARIO_EXISTE:
 
-	;;esperar a presionar una tecla
-	mov AH, 01h
-	int 21h
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 17h ;;fila
+        mov DL, 00h ;;columna
+        int 10h
+        mov DX, offset cadena_error_usuario_existe
+        mov AH, 09h
+        int 21h
 
-	jmp REGISTRO
+        ;;esperar a presionar una tecla
+        mov AH, 01h
+        int 21h
 
-ERROR_USUARIO_EXISTE:
+        jmp REGISTRO
 
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 17h ;;fila
-	mov DL, 00h ;;columna
-	int 10h
-	mov DX, offset cadena_error_usuario_existe
-	mov AH, 09h
-	int 21h
+### 9. Registro
+Permite registrar usuarios nuevos
 
-	;;esperar a presionar una tecla
-	mov AH, 01h
-	int 21h
+    REGISTRO:
 
-	jmp REGISTRO
+        mov count_minusculas_password, 00h
+        mov count_mayusculas_password, 00h
+        mov count_caracter_especial_password, 00h
 
-REGISTRO:
+        call limpiar_pantalla
 
-	;Limpiar counts password
-	mov count_minusculas_password, 00h
-	mov count_mayusculas_password, 00h
-	mov count_caracter_especial_password, 00h
+        mov BX, offset buffer_entrada_usuario
+        call limpiar_buffer
 
-	;Limpiar Pantalla
-	call limpiar_pantalla
+        mov BX, offset buffer_entrada_password
+        call limpiar_buffer
 
-	;;limpiar buffer usuario
-	mov BX, offset buffer_entrada_usuario
-	call limpiar_buffer
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 04h
+        mov DL, 05h
+        int 10h
 
-	;;limpiar buffer password
-	mov BX, offset buffer_entrada_password
-	call limpiar_buffer
+        mov DX, offset cadena_registro_titulo
+        mov AH, 09h
+        int 21h
 
-	;;colocar cursor en la posicion fila, col -> 04h, 06h
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 04h
-	mov DL, 05h
-	int 10h
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 08h
+        mov DL, 06h
+        int 10h
 
-	;;imprimir cadena_registro_titulo
-	mov DX, offset cadena_registro_titulo
-	mov AH, 09h
-	int 21h
+        mov DX, offset cadena_usuariologin
+        mov AH, 09h
+        int 21h
 
-;;------------------------------------USUARIO------------------------------------
-	;;colocar cursor en la posicion fila, col -> 08h, 06h
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 08h
-	mov DL, 06h
-	int 10h
+        mov AH, 0ah
+        mov DX, offset buffer_entrada_usuario
+        int 21h
 
-	;;imprimir cadena_usuariologin
-	mov DX, offset cadena_usuariologin
-	mov AH, 09h
-	int 21h
+        mov AL, [buffer_entrada_usuario+1]
+        mov AH, 00
+        mov SI, AX
+        mov DI, offset buffer_entrada_usuario+2
+        add DI, SI
+        mov AL, 00
+        mov [DI], AL
+        
+        mov AL, [buffer_entrada_usuario+1]
+        cmp AL, 08h
+        jl ERROR_LONGITUD_USUARIO
+        cmp AL, 14h
+        jg ERROR_LONGITUD_USUARIO
 
-	;;pedir nombre de usuario
-	mov AH, 0ah
-	mov DX, offset buffer_entrada_usuario
-	int 21h
+        mov SI, offset buffer_entrada_usuario+2
+        mov CH, 00h
+        mov CL, [buffer_entrada_usuario+1]
 
-	mov AL, [buffer_entrada_usuario+1]
-	mov AH, 00
-	mov SI, AX
-	mov DI, offset buffer_entrada_usuario+2
-	add DI, SI
-	mov AL, 00
-	mov [DI], AL
+### 9. Loop_validar_usuario
+Permite validar la longitud, el tipo de caracteres validos       
 
-	;Valida Usuario
-	;usuario -> [a-z][a-z0-9._-]    rango {8,20}
-	
-	;Valida Longitud de Usuario de 8 a 20 caracteres
-	mov AL, [buffer_entrada_usuario+1]
-	cmp AL, 08h
-	jl ERROR_LONGITUD_USUARIO
-	cmp AL, 14h
-	jg ERROR_LONGITUD_USUARIO
+    LOOP_VALIDAR_USUARIO:
+        mov AL, [SI]
 
-	;Validar que los caracteres sean de [a-z] o de [0-9] o de [._-]
-	mov SI, offset buffer_entrada_usuario+2
-	mov CH, 00h
-	mov CL, [buffer_entrada_usuario+1]
-LOOP_VALIDAR_USUARIO:
-	mov AL, [SI]
-	;Validar Si es '-' o '_' o '.'
-	cmp AL, '-'
-	je FINAL_LOOP_VALIDAR_USUARIO
-	cmp AL, '_'
-	je FINAL_LOOP_VALIDAR_USUARIO
-	cmp AL, '.'
-	je FINAL_LOOP_VALIDAR_USUARIO
-	;Validar Si es de [0-9]
-	cmp AL, '0'
-	jl ERROR_CARACTERES_NO_VALIDOS
-	cmp AL, '9'
-	jle FINAL_LOOP_VALIDAR_USUARIO
-	;Validar Si es de [a-z]
-	cmp AL, 'a'
-	jl ERROR_CARACTERES_NO_VALIDOS
-	cmp AL, 'z'
-	jle FINAL_LOOP_VALIDAR_USUARIO
-	jmp ERROR_CARACTERES_NO_VALIDOS
-FINAL_LOOP_VALIDAR_USUARIO:
-	inc SI
-	loop LOOP_VALIDAR_USUARIO
+        cmp AL, '-'
+        je FINAL_LOOP_VALIDAR_USUARIO
+        cmp AL, '_'
+        je FINAL_LOOP_VALIDAR_USUARIO
+        cmp AL, '.'
+        je FINAL_LOOP_VALIDAR_USUARIO
+        
+        cmp AL, '0'
+        jl ERROR_CARACTERES_NO_VALIDOS
+        cmp AL, '9'
+        jle FINAL_LOOP_VALIDAR_USUARIO
+        
+        cmp AL, 'a'
+        jl ERROR_CARACTERES_NO_VALIDOS
+        cmp AL, 'z'
+        jle FINAL_LOOP_VALIDAR_USUARIO
+        jmp ERROR_CARACTERES_NO_VALIDOS
+    FINAL_LOOP_VALIDAR_USUARIO:
+        inc SI
+        loop LOOP_VALIDAR_USUARIO
 
-
-;;Abrir Archivo Usuario y verificar que el Usuario no exista
-
-	;;Abrir Archivo de Usuario
 	mov AH, 3dh
-	mov AL, 00h ;Solo lectura
+	mov AL, 00h
 	mov DX, offset usuarios_archivo
 	int 21h
 
-	;;error de apertura
 	jc ERROR_APERTURA_REGISTRO
 	mov handle_usuarios, AX
 
-	;;Leer los Usuario y verificar que no exista
-LEER_USUARIO_REGISTRO:
-	;;leer usuario
-	mov AH, 3fh
-	mov BX, handle_usuarios
-	mov CX, 2fh ;;se lee toda la estructura
-	mov DX, offset usuario_leido
-	int 21h
-	;;error de lectura
-	jc ERROR_LECTURA
-	cmp AX, 00h
-	je USUARIO_NO_EXISTE
-	mov CX, 0014h
-	mov SI, offset usuario_leido
-	mov DI, offset [buffer_entrada_usuario + 2]
-LOOP_COMPARAR_USUARIO:
-	mov AL, [SI]
-	cmp AL, [DI]
-	jne LEER_USUARIO_REGISTRO
-	inc SI
-	inc DI
-	loop LOOP_COMPARAR_USUARIO
-	;;si llega aqui es porque el usuario ya existe
-	jmp ERROR_USUARIO_EXISTE
+### 10. Leer_usuario_registro
+Permite leer el archivo de usuario y verificar si ya existe el usuario ingresado
 
-USUARIO_NO_EXISTE:
-	;;cerrar archivo
-	mov BX, handle_usuarios
-	mov AH, 3eh
-	int 21h
+    LEER_USUARIO_REGISTRO:
+        
+        mov AH, 3fh
+        mov BX, handle_usuarios
+        mov CX, 2fh ;;se lee toda la estructura
+        mov DX, offset usuario_leido
+        int 21h
+        
+        jc ERROR_LECTURA
+        cmp AX, 00h
+        je USUARIO_NO_EXISTE
+        mov CX, 0014h
+        mov SI, offset usuario_leido
+        mov DI, offset [buffer_entrada_usuario + 2]
+    LOOP_COMPARAR_USUARIO:
+        mov AL, [SI]
+        cmp AL, [DI]
+        jne LEER_USUARIO_REGISTRO
+        inc SI
+        inc DI
+        loop LOOP_COMPARAR_USUARIO
+        jmp ERROR_USUARIO_EXISTE
 
-	;;colocar cursor en la posicion fila, col -> 0ah, 06h
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 0ah
-	mov DL, 06h
-	int 10h
+### 11. USUARIO_NO_EXISTE
+Valida el usuario e indica que el usuario no existe
 
-	;;imprimir cadena_passwordlogin
-	mov DX, offset cadena_passwordlogin
-	mov AH, 09h
-	int 21h
+    USUARIO_NO_EXISTE:
+        
+        mov BX, handle_usuarios
+        mov AH, 3eh
+        int 21h
 
-	;;pedir password
-	mov AH, 0ah
-	mov DX, offset buffer_entrada_password
-	int 21h
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 0ah
+        mov DL, 06h
+        int 10h
 
-	mov AL, [buffer_entrada_password+1]
-	mov AH, 00
-	mov SI, AX
-	mov DI, offset buffer_entrada_password+2
-	add DI, SI
-	mov AL, 00
-	mov [DI], AL
+        mov DX, offset cadena_passwordlogin
+        mov AH, 09h
+        int 21h
 
-	;Valida Password 
-	;Password -> [a-zA-Z*_.-@+?]+ rango {15,25}
+        mov AH, 0ah
+        mov DX, offset buffer_entrada_password
+        int 21h
 
-	;Valida Longitud de Usuario de 8 a 20 caracteres
-	mov AL, [buffer_entrada_password+1]
-	cmp AL, 0fh
-	jl ERROR_LONGITUD_PASSWORD
-	cmp AL, 19h
-	jg ERROR_LONGITUD_PASSWORD
+        mov AL, [buffer_entrada_password+1]
+        mov AH, 00
+        mov SI, AX
+        mov DI, offset buffer_entrada_password+2
+        add DI, SI
+        mov AL, 00
+        mov [DI], AL
 
-	;Validar que los caracteres [a-zA-Z*_.-@+?]+
-	mov SI, offset buffer_entrada_password+2
-	mov CH, 00h
-	mov CL, [buffer_entrada_password+1]
-LOOP_VALIDAR_PASSWORD:
-	mov AL, [SI]
-	;Validar Si es '-' o '_' o '.' o '@' o '+' o '?' o '*'
-	cmp AL, '-'
-	je DETECTO_CARACTER_ESPECIAL
-	cmp AL, '_'
-	je DETECTO_CARACTER_ESPECIAL
-	cmp AL, '.'
-	je DETECTO_CARACTER_ESPECIAL
-	cmp AL, '@'
-	je DETECTO_CARACTER_ESPECIAL
-	cmp AL, '+'
-	je DETECTO_CARACTER_ESPECIAL
-	cmp AL, '?'
-	je DETECTO_CARACTER_ESPECIAL
-	cmp AL, '*'
-	je DETECTO_CARACTER_ESPECIAL
-	;Validar [A-Z]
-	cmp AL, 'A'
-	jl ERROR_CARACTERES_NO_VALIDOS_PASSWORD
-	cmp AL, 'Z'
-	jle DETECTO_MAYUSCULA
-	;Validar Si es de [a-z]
-	cmp AL, 'a'
-	jl ERROR_CARACTERES_NO_VALIDOS_PASSWORD
-	cmp AL, 'z'
-	jle DETECTO_MINUSCULA
-	jmp ERROR_CARACTERES_NO_VALIDOS_PASSWORD
-DETECTO_CARACTER_ESPECIAL:
-	inc count_caracter_especial_password
-	jmp FINAL_LOOP_VALIDAR_PASSWORD
-DETECTO_MAYUSCULA:
-	inc count_mayusculas_password
-	jmp FINAL_LOOP_VALIDAR_PASSWORD
-DETECTO_MINUSCULA:
-	inc count_minusculas_password
-FINAL_LOOP_VALIDAR_PASSWORD:
-	inc SI
-	loop LOOP_VALIDAR_PASSWORD
-
-	;;Validar minimo 4 minusculas, minimo 3 mayusculas y minimo un caracter especial
-	cmp count_minusculas_password, 04h
-	jl ERROR_CARACTERES_REQUISITOS_DE_CARACTERES
-	cmp count_mayusculas_password, 03h
-	jl ERROR_CARACTERES_REQUISITOS_DE_CARACTERES
-	cmp count_caracter_especial_password, 01h
-	jl ERROR_CARACTERES_REQUISITOS_DE_CARACTERES
+        mov AL, [buffer_entrada_password+1]
+        cmp AL, 0fh
+        jl ERROR_LONGITUD_PASSWORD
+        cmp AL, 19h
+        jg ERROR_LONGITUD_PASSWORD
 
 
-	;;Abrir Archivo de Usuario
-	mov AH, 3dh
-	mov AL, 02h
-	mov DX, offset usuarios_archivo
-	int 21h
+        mov SI, offset buffer_entrada_password+2
+        mov CH, 00h
+        mov CL, [buffer_entrada_password+1]
+        
+    LOOP_VALIDAR_PASSWORD:
+        mov AL, [SI]
+        ;Validar Si es '-' o '_' o '.' o '@' o '+' o '?' o '*'
+        cmp AL, '-'
+        je DETECTO_CARACTER_ESPECIAL
+        cmp AL, '_'
+        je DETECTO_CARACTER_ESPECIAL
+        cmp AL, '.'
+        je DETECTO_CARACTER_ESPECIAL
+        cmp AL, '@'
+        je DETECTO_CARACTER_ESPECIAL
+        cmp AL, '+'
+        je DETECTO_CARACTER_ESPECIAL
+        cmp AL, '?'
+        je DETECTO_CARACTER_ESPECIAL
+        cmp AL, '*'
+        je DETECTO_CARACTER_ESPECIAL
+        ;Validar [A-Z]
+        cmp AL, 'A'
+        jl ERROR_CARACTERES_NO_VALIDOS_PASSWORD
+        cmp AL, 'Z'
+        jle DETECTO_MAYUSCULA
+        ;Validar Si es de [a-z]
+        cmp AL, 'a'
+        jl ERROR_CARACTERES_NO_VALIDOS_PASSWORD
+        cmp AL, 'z'
+        jle DETECTO_MINUSCULA
+        jmp ERROR_CARACTERES_NO_VALIDOS_PASSWORD
+    DETECTO_CARACTER_ESPECIAL:
+        inc count_caracter_especial_password
+        jmp FINAL_LOOP_VALIDAR_PASSWORD
+    DETECTO_MAYUSCULA:
+        inc count_mayusculas_password
+        jmp FINAL_LOOP_VALIDAR_PASSWORD
+    DETECTO_MINUSCULA:
+        inc count_minusculas_password
+    FINAL_LOOP_VALIDAR_PASSWORD:
+        inc SI
+        loop LOOP_VALIDAR_PASSWORD
 
-	;;error de apertura
-	jc ERROR_APERTURA_REGISTRO
-	mov handle_usuarios, AX
-
-	;;mover el puntero al final del archivo
-	mov AL, 02h
-	mov AH, 42h
-	mov BX, handle_usuarios
-	mov CX, 0000h
-	mov DX, 0000h
-	int 21h
-
-	jc ERROR_APERTURA_REGISTRO
-
-	;;escribir en el archivo el nuevo usuario
-	mov AH, 40h
-	mov BX, handle_usuarios
-	mov CX, 14h
-	mov DX, offset buffer_entrada_usuario + 2
-	int 21h
-
-	mov AH, 40h
-	mov BX, handle_usuarios
-	mov CX, 19h
-	mov DX, offset buffer_entrada_password + 2
-	int 21h
-
-	mov rol_usuario, 02h
-	mov estado_usuario, 00h
-	
-	mov AH, 40h
-	mov BX, handle_usuarios
-	mov CX, 01h
-	mov DX, offset rol_usuario
-	int 21h
-
-	mov AH, 40h
-	mov BX, handle_usuarios
-	mov CX, 01h
-	mov DX, offset estado_usuario
-	int 21h
-
-	;;cerrar archivo
-	mov BX, handle_usuarios
-	mov AH, 3eh
-	int 21h
+        ;;Validar minimo 4 minusculas, minimo 3 mayusculas y minimo un caracter especial
+        cmp count_minusculas_password, 04h
+        jl ERROR_CARACTERES_REQUISITOS_DE_CARACTERES
+        cmp count_mayusculas_password, 03h
+        jl ERROR_CARACTERES_REQUISITOS_DE_CARACTERES
+        cmp count_caracter_especial_password, 01h
+        jl ERROR_CARACTERES_REQUISITOS_DE_CARACTERES
 
 
-	jmp PANTALLA_INICIAL
+        ;;Abrir Archivo de Usuario
+        mov AH, 3dh
+        mov AL, 02h
+        mov DX, offset usuarios_archivo
+        int 21h
+
+        ;;error de apertura
+        jc ERROR_APERTURA_REGISTRO
+        mov handle_usuarios, AX
+
+        ;;mover el puntero al final del archivo
+        mov AL, 02h
+        mov AH, 42h
+        mov BX, handle_usuarios
+        mov CX, 0000h
+        mov DX, 0000h
+        int 21h
+
+        jc ERROR_APERTURA_REGISTRO
+
+        ;;escribir en el archivo el nuevo usuario
+        mov AH, 40h
+        mov BX, handle_usuarios
+        mov CX, 14h
+        mov DX, offset buffer_entrada_usuario + 2
+        int 21h
+
+        mov AH, 40h
+        mov BX, handle_usuarios
+        mov CX, 19h
+        mov DX, offset buffer_entrada_password + 2
+        int 21h
+
+        mov rol_usuario, 02h
+        mov estado_usuario, 00h
+        
+        mov AH, 40h
+        mov BX, handle_usuarios
+        mov CX, 01h
+        mov DX, offset rol_usuario
+        int 21h
+
+        mov AH, 40h
+        mov BX, handle_usuarios
+        mov CX, 01h
+        mov DX, offset estado_usuario
+        int 21h
+
+        ;;cerrar archivo
+        mov BX, handle_usuarios
+        mov AH, 3eh
+        int 21h
+
+
+        jmp PANTALLA_INICIAL
 
 LOGIN:
 	call limpiar_pantalla
