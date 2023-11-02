@@ -4019,9 +4019,13 @@ ciclo_limpiar_pantalla:
 ;;				DI -> offset de la cadena
 ;;				CX -> tamaño de la cadena
 ;;     Salida:  offset de la cadena -> el número convertido a cadena
-numAstr:         
+
+
+numAstr:     
+
     mov BX, DI ;;direccion cadena resultado
     mov DX, 0030h
+	
 limpiar:        
     mov [BX], DL
     inc BX

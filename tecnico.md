@@ -667,6 +667,9 @@ Valida el usuario e indica que el usuario no existe
         mov CH, 00h
         mov CL, [buffer_entrada_password+1]
         
+### 12. LOOP_VALIDAR_PASSWORD
+Recorre la cadena del passoword y valida si cumple con los requerimientos descritos en el enunciado
+
     LOOP_VALIDAR_PASSWORD:
         mov AL, [SI]
         ;Validar Si es '-' o '_' o '.' o '@' o '+' o '?' o '*'
@@ -772,119 +775,122 @@ Valida el usuario e indica que el usuario no existe
 
         jmp PANTALLA_INICIAL
 
-LOGIN:
-	call limpiar_pantalla
+### 13. Login
+Permite acceder a la pantalla para poder logearse, pide el nombre de usuario y el password, luego llama subrutinas para verificar si los datos ingresados son correctos
 
-	;;limpiar buffer usuario
-	mov BX, offset buffer_entrada_usuario
-	call limpiar_buffer
+    LOGIN:
 
-	;;limpiar buffer password
-	mov BX, offset buffer_entrada_password
-	call limpiar_buffer
+        call limpiar_pantalla
 
-	;;colocar cursor en la posicion fila, col -> 04h, 06h
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 04h
-	mov DL, 05h
-	int 10h
+        
+        mov BX, offset buffer_entrada_usuario
+        call limpiar_buffer
 
-	;;imprimir cadena_login_titulo
-	mov DX, offset cadena_login_titulo
-	mov AH, 09h
-	int 21h
 
-	;;colocar cursor en la posicion fila, col -> 08h, 06h
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 08h
-	mov DL, 06h
-	int 10h
+        mov BX, offset buffer_entrada_password
+        call limpiar_buffer
 
-	;;imprimir cadena_usuariologin
-	mov DX, offset cadena_usuariologin
-	mov AH, 09h
-	int 21h
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 04h
+        mov DL, 05h
+        int 10h
 
-	;;pedir nombre de usuario
-	mov AH, 0ah
-	mov DX, offset buffer_entrada_usuario
-	int 21h
+        mov DX, offset cadena_login_titulo
+        mov AH, 09h
+        int 21h
 
-	mov AL, [buffer_entrada_usuario+1]
-	mov AH, 00
-	mov SI, AX
-	mov DI, offset buffer_entrada_usuario+2
-	add DI, SI
-	mov AL, 00
-	mov [DI], AL
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 08h
+        mov DL, 06h
+        int 10h
 
-	;;colocar cursor en la posicion fila, col -> 0ah, 06h
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 0ah
-	mov DL, 06h
-	int 10h
+        mov DX, offset cadena_usuariologin
+        mov AH, 09h
+        int 21h
 
-	;;imprimir cadena_passwordlogin
-	mov DX, offset cadena_passwordlogin
-	mov AH, 09h
-	int 21h
+        mov AH, 0ah
+        mov DX, offset buffer_entrada_usuario
+        int 21h
 
-	;;pedir password
-	mov AH, 0ah
-	mov DX, offset buffer_entrada_password
-	int 21h
+        mov AL, [buffer_entrada_usuario+1]
+        mov AH, 00
+        mov SI, AX
+        mov DI, offset buffer_entrada_usuario+2
+        add DI, SI
+        mov AL, 00
+        mov [DI], AL
 
-	mov AL, [buffer_entrada_password+1]
-	mov AH, 00
-	mov SI, AX
-	mov DI, offset buffer_entrada_password+2
-	add DI, SI
-	mov AL, 00
-	mov [DI], AL
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 0ah
+        mov DL, 06h
+        int 10h
 
-	;;abrir archivo de usuarios
-	mov AH, 3dh
-	mov AL, 02h
-	mov DX, offset usuarios_archivo
-	int 21h
-	;;error de apertura
-	jc ERROR_APERTURA
-	mov handle_usuarios, AX
-	mov bandera_coincide_usuario, 00h
-LEER_USUARIO:
-	;;leer usuario
-	mov AH, 3fh
-	mov BX, handle_usuarios
-	mov CX, 2fh ;;se lee toda la estructura
-	mov DX, offset usuario_leido
-	int 21h
-	;;error de lectura
-	jc ERROR_LECTURA
-	
-	cmp AX, 00h
-	je ERROR_LOGIN
+        mov DX, offset cadena_passwordlogin
+        mov AH, 09h
+        int 21h
 
-	;;comparar usuario
-	mov SI, offset usuario_leido
-	mov DI, offset [buffer_entrada_usuario + 2] ;; inicio cadena
-	mov CX, 2dh ;;tamaño de la cadena 45 decimal = 2dh
-	mov cont_login, 00h
+        mov AH, 0ah
+        mov DX, offset buffer_entrada_password
+        int 21h
+
+        mov AL, [buffer_entrada_password+1]
+        mov AH, 00
+        mov SI, AX
+        mov DI, offset buffer_entrada_password+2
+        add DI, SI
+        mov AL, 00
+        mov [DI], AL
+
+        mov AH, 3dh
+        mov AL, 02h
+        mov DX, offset usuarios_archivo
+        int 21h
+
+        jc ERROR_APERTURA
+        mov handle_usuarios, AX
+        mov bandera_coincide_usuario, 00h
+
+
+### 14. LEER_USUARIO
+Permite preparar todo para ingresar al ciclo de lectura de usuarios del archivo
+
+    LEER_USUARIO:	
+
+        mov AH, 3fh
+        mov BX, handle_usuarios
+        mov CX, 2fh
+        mov DX, offset usuario_leido
+        int 21h
+        
+        jc ERROR_LECTURA
+        
+        cmp AX, 00h
+        je ERROR_LOGIN
+
+        mov SI, offset usuario_leido
+        mov DI, offset [buffer_entrada_usuario + 2]
+        mov CX, 2dh ;;tamaño de la cadena 45 decimal = 2dh
+        mov cont_login, 00h
+
+### 15. CICLO_LEER_USUARIO
+
 CICLO_LEER_USUARIO:
 	mov AL, [SI]
 	cmp AL, [DI]
-	;
+	
 	jne LEER_USUARIO
+
 	cmp cont_login, 13h
 	jne SEGUIR_LEYENDO
-	mov DI, offset [buffer_entrada_password + 1] ;; inicio cadena
-	;Si llega aqui es porque el usuario coincide
+
+	mov DI, offset [buffer_entrada_password + 1] ;
+	
 	mov bandera_coincide_usuario, 01h
-	;;Guardar pointer actual del archivo de usuarios
+	
 	mov BP, CX
-	;
 	mov AH, 42h
 	mov AL, 01h
 	mov BX, handle_usuarios
@@ -893,91 +899,102 @@ CICLO_LEER_USUARIO:
 	int 21h
 	mov offset_usuario_coincide, AX
 	mov CX, BP
-SEGUIR_LEYENDO:
-	inc SI
-	inc DI
-	inc cont_login
-	loop CICLO_LEER_USUARIO
-;;Usuario Encontrado. Se posiciona el cursos y se imprime "Login Correcto"
-	;Cerrar archivo
-	mov BX, handle_usuarios
-	mov AH, 3eh
-	int 21h
-	;Reinicia contador de intentos
-	mov count_intentos, 00h
-	;Guardar fecha_hora ingreso al Sistema de Usuario
-	call ACTUALIZAR_FECHA_HORA
-	
-	;Verificar si el usuario esta bloqueado
-	cmp estado_usuario, 01h
-	jne USUARIO_NO_BLOQUEADO
-	;Imprimir cadena de usuario bloqueado
-	mov AH, 02h
-	;Posicionar Cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 18h ;;fila
-	mov DL, 00h ;;columna
-	int 10h
-	mov DX, offset cadena_usuario_bloqueado
-	mov AH, 09h
-	int 21h
-	;Esperar a presionar una tecla
-	mov AH, 01h
-	int 21h
-	;Volver a pantalla inicial
-	jmp PANTALLA_INICIAL
 
-USUARIO_NO_BLOQUEADO:
-	;Posicionar Cursor
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 18h ;;fila
-	mov DL, 00h ;;columna
-	int 10h
-	mov DX, offset cadena_logincorrecto
-	mov AH, 09h
-	int 21h
+### 16. SEGUIR_LEYENDO:
+Permite incrementar los regostros para ingresar nuevamente al cliclo de lectura del archivo
 
-	;;esperar a presionar una tecla
-	mov AH, 01h
-	int 21h
+    SEGUIR_LEYENDO:
 
-	jmp MENU
+        inc SI
+        inc DI
+        inc cont_login
 
-MENU:
-	call limpiar_pantalla
-	;;Mostrar encabezado SIEMPRE
-	mov AH, 02h
-	mov BH, 00h
-	mov DH, 01h
-	mov DL, 04h
-	int 10h
-	mov DX, offset cadena_usuario_base
-	mov AH, 09h
-	int 21h
+        loop CICLO_LEER_USUARIO
 
-	;;admin orginal
-	cmp rol_usuario, USUARIO_ADMIN_ORIGINAL
-	je MENU_ADMIN_ORIGINAL
-	;;admin
-	cmp rol_usuario, USUARIO_ADMIN
-	je MENU_ADMIN_NORMAL
-	;;normal
-	jmp SIGUE_MENU
+        mov BX, handle_usuarios
+        mov AH, 3eh
+        int 21h
+        mov count_intentos, 00h
+        call ACTUALIZAR_FECHA_HORA
+        cmp estado_usuario, 01h
+        jne USUARIO_NO_BLOQUEADO
+        mov AH, 02h
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 18h ;;fila
+        mov DL, 00h ;;columna
+        int 10h
+        mov DX, offset cadena_usuario_bloqueado
+        mov AH, 09h
+        int 21h
+        mov AH, 01h
+        int 21h
+        jmp PANTALLA_INICIAL
 
-MENU_ADMIN_ORIGINAL:
-	mov DX, offset cadena_usuario_admin
-	mov AH, 09h
-	int 21h
-	mov DX, offset cadena_usuario_admin_original
-	mov AH, 09h
-	int 21h
-	jmp SIGUE_MENU
-MENU_ADMIN_NORMAL:
-	mov DX, offset cadena_usuario_admin	
-	mov AH, 09h
-	int 21h
+### 17. USUARIO_NO_BLOQUEADO
+Permite mostrar el mensaje de usuario correcto para poder ingresar al menu
+
+    USUARIO_NO_BLOQUEADO:
+        
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 18h 
+        mov DL, 00h 
+        int 10h
+        mov DX, offset cadena_logincorrecto
+        mov AH, 09h
+        int 21h
+
+        mov AH, 01h
+        int 21h
+
+        jmp MENU
+
+### 18. MENU
+Permite mostrar y acceder a las distintas funciones dependiendo del tipo de usuario que ingrese
+
+    MENU:
+        call limpiar_pantalla
+        ;;Mostrar encabezado SIEMPRE
+        mov AH, 02h
+        mov BH, 00h
+        mov DH, 01h
+        mov DL, 04h
+        int 10h
+        mov DX, offset cadena_usuario_base
+        mov AH, 09h
+        int 21h
+
+        ;;admin orginal
+        cmp rol_usuario, USUARIO_ADMIN_ORIGINAL
+        je MENU_ADMIN_ORIGINAL
+        ;;admin
+        cmp rol_usuario, USUARIO_ADMIN
+        je MENU_ADMIN_NORMAL
+        ;;normal
+        jmp SIGUE_MENU
+
+### 19. MENU_ADMIN_ORIGINAL
+Muestra las opciones del menu del admin principal 
+
+    MENU_ADMIN_ORIGINAL:
+        mov DX, offset cadena_usuario_admin
+        mov AH, 09h
+        int 21h
+        mov DX, offset cadena_usuario_admin_original
+        mov AH, 09h
+        int 21h
+        jmp SIGUE_MENU
+
+### 20. MENU_ADMIN_NORMAL
+Permite mostarr cuando es un admin normal en el menu
+
+    MENU_ADMIN_NORMAL:
+        mov DX, offset cadena_usuario_admin	
+        mov AH, 09h
+        int 21h
+
+
 SIGUE_MENU:
 	;;se lee la tecla presionada
 	mov AH, 00h
